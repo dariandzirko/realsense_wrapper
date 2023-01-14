@@ -1,21 +1,33 @@
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn main() {
+    // let libdir_path = PathBuf::from("/usr/include/librealsense2")
+    //     .canonicalize()
+    //     .expect("Cannot canonicalize path");
+
+    // let headers_path = libdir_path.join("rs.h");
+    // let headers_path_str = headers_path.to_str().expect("Path is not a valid string");
+
+    // let obj_path = PathBuf::from(
+    //     "/usr/lib/x86_64-linux-gnu/librealsense2.so
+    // ",
+    // );
+
     // Tell cargo to look for shared libraries in the specified directory
-    println!("cargo:rustc-link-search=/usr/lib/x86_64-linux-gnu/");
+    //println!("cargo:rustc-link-search=/usr/lib/x86_64-linux-gnu/");
 
     // Tell cargo to tell rustc to link the system shared library.
-    println!("cargo:rustc-link-lib=/librealsense2");
+    //println!("cargo:rustc-link-lib=/usr/lib/x86_64-linux-gnu/librealsense2.so");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
-    println!("cargo:rerun-if-changed=/home/darian/Documents/github/librealsense/include/librealsense2/rs.h");
+    println!("cargo:rerun-if-changed=/home/darian/Documents/github/realsense_wrapper/bindings.rs");
 
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
     // the resulting bindings.
     let bindings = bindgen::Builder::default()
-        .whitelist_type("/h")
+        //.whitelist_type("/h")
         // The input header we would like to generate
         // bindings for.
         .header("/home/darian/Documents/github/librealsense/include/librealsense2/rs.h")
@@ -28,9 +40,9 @@ fn main() {
         .expect("Unable to generate bindings");
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
-    let out_path =
-        PathBuf::from(env::var("/home/darian/Documents/github/realsense_bindings").unwrap());
+    // let out_path =
+    //     PathBuf::from(env::var("/home/darian/Documents/github/realsense_wrapper").unwrap());
     bindings
-        .write_to_file(out_path.join("bindings.rs"))
+        .write_to_file("/home/darian/Documents/github/realsense_wrapper/bindings.rs")
         .expect("Couldn't write bindings!");
 }
