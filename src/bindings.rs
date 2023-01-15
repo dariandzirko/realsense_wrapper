@@ -214,6 +214,7 @@ pub const RS2_API_MINOR_VERSION: u32 = 53;
 pub const RS2_API_PATCH_VERSION: u32 = 1;
 pub const RS2_API_BUILD_VERSION: u32 = 0;
 pub const RS2_API_VERSION: u32 = 25301;
+pub const RS2_DEFAULT_TIMEOUT: u32 = 15000;
 pub type wchar_t = ::std::os::raw::c_int;
 pub type _Float32 = f32;
 pub type _Float64 = f64;
@@ -7194,4 +7195,215 @@ extern "C" {
 extern "C" {
     #[doc = " return the time at specific time point\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return            the time at specific time point, in live and record mode it will return the system time and in playback mode it will return the recorded time"]
     pub fn rs2_get_time(error: *mut *mut rs2_error) -> rs2_time_t;
+}
+extern "C" {
+    #[doc = " Create a config instance\n The config allows pipeline users to request filters for the pipeline streams and device selection and configuration.\n This is an optional step in pipeline creation, as the pipeline resolves its streaming device internally.\n Config provides its users a way to set the filters and test if there is no conflict with the pipeline requirements\n from the device. It also allows the user to find a matching device for the config filters and the pipeline, in order to\n select a device explicitly, and modify its controls before streaming starts.\n\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return rs2_config*  A pointer to a new config instance"]
+    pub fn rs2_create_config(error: *mut *mut rs2_error) -> *mut rs2_config;
+}
+extern "C" {
+    #[doc = " Deletes an instance of a config\n\n \\param[in] config    A pointer to an instance of a config"]
+    pub fn rs2_delete_config(config: *mut rs2_config);
+}
+extern "C" {
+    #[doc = " Enable a device stream explicitly, with selected stream parameters.\n The method allows the application to request a stream with specific configuration. If no stream is explicitly enabled, the pipeline\n configures the device and its streams according to the attached computer vision modules and processing blocks requirements, or\n default configuration for the first available device.\n The application can configure any of the input stream parameters according to its requirement, or set to 0 for don't care value.\n The config accumulates the application calls for enable configuration methods, until the configuration is applied. Multiple enable\n stream calls for the same stream with conflicting parameters override each other, and the last call is maintained.\n Upon calling \\c resolve(), the config checks for conflicts between the application configuration requests and the attached computer\n vision modules and processing blocks requirements, and fails if conflicts are found. Before \\c resolve() is called, no conflict\n check is done.\n\n \\param[in] config    A pointer to an instance of a config\n \\param[in] stream    Stream type to be enabled\n \\param[in] index     Stream index, used for multiple streams of the same type. -1 indicates any.\n \\param[in] width     Stream image width - for images streams. 0 indicates any.\n \\param[in] height    Stream image height - for images streams. 0 indicates any.\n \\param[in] format    Stream data format - pixel format for images streams, of data type for other streams. RS2_FORMAT_ANY indicates any.\n \\param[in] framerate Stream frames per second. 0 indicates any.\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_enable_stream(
+        config: *mut rs2_config,
+        stream: rs2_stream,
+        index: ::std::os::raw::c_int,
+        width: ::std::os::raw::c_int,
+        height: ::std::os::raw::c_int,
+        format: rs2_format,
+        framerate: ::std::os::raw::c_int,
+        error: *mut *mut rs2_error,
+    );
+}
+extern "C" {
+    #[doc = " Enable all device streams explicitly.\n The conditions and behavior of this method are similar to those of \\c enable_stream().\n This filter enables all raw streams of the selected device. The device is either selected explicitly by the application,\n or by the pipeline requirements or default. The list of streams is device dependent.\n\n \\param[in] config    A pointer to an instance of a config\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_enable_all_stream(config: *mut rs2_config, error: *mut *mut rs2_error);
+}
+extern "C" {
+    #[doc = " Select a specific device explicitly by its serial number, to be used by the pipeline.\n The conditions and behavior of this method are similar to those of \\c enable_stream().\n This method is required if the application needs to set device or sensor settings prior to pipeline streaming, to enforce\n the pipeline to use the configured device.\n\n \\param[in] config    A pointer to an instance of a config\n \\param[in] serial device serial number, as returned by RS2_CAMERA_INFO_SERIAL_NUMBER\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_enable_device(
+        config: *mut rs2_config,
+        serial: *const ::std::os::raw::c_char,
+        error: *mut *mut rs2_error,
+    );
+}
+extern "C" {
+    #[doc = " Select a recorded device from a file, to be used by the pipeline through playback.\n The device available streams are as recorded to the file, and \\c resolve() considers only this device and configuration\n as available.\n This request cannot be used if enable_record_to_file() is called for the current config, and vise versa\n By default, playback is repeated once the file ends. To control this, see 'rs2_config_enable_device_from_file_repeat_option'.\n\n \\param[in] config    A pointer to an instance of a config\n \\param[in] file      The playback file of the device\n \\param[out] error    if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_enable_device_from_file(
+        config: *mut rs2_config,
+        file: *const ::std::os::raw::c_char,
+        error: *mut *mut rs2_error,
+    );
+}
+extern "C" {
+    #[doc = " Select a recorded device from a file, to be used by the pipeline through playback.\n The device available streams are as recorded to the file, and \\c resolve() considers only this device and configuration\n as available.\n This request cannot be used if enable_record_to_file() is called for the current config, and vise versa\n\n \\param[in] config           A pointer to an instance of a config\n \\param[in] file             The playback file of the device\n \\param[in] repeat_playback  if true, when file ends the playback starts again, in an infinite loop;\nif false, when file ends playback does not start again, and should by stopped manually by the user.\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_enable_device_from_file_repeat_option(
+        config: *mut rs2_config,
+        file: *const ::std::os::raw::c_char,
+        repeat_playback: ::std::os::raw::c_int,
+        error: *mut *mut rs2_error,
+    );
+}
+extern "C" {
+    #[doc = " Requires that the resolved device would be recorded to file\n This request cannot be used if enable_device_from_file() is called for the current config, and vise versa\n\n \\param[in] config    A pointer to an instance of a config\n \\param[in] file      The desired file for the output record\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_enable_record_to_file(
+        config: *mut rs2_config,
+        file: *const ::std::os::raw::c_char,
+        error: *mut *mut rs2_error,
+    );
+}
+extern "C" {
+    #[doc = " Disable a device stream explicitly, to remove any requests on this stream type.\n The stream can still be enabled due to pipeline computer vision module request. This call removes any filter on the\n stream configuration.\n\n \\param[in] config    A pointer to an instance of a config\n \\param[in] stream    Stream type, for which the filters are cleared\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_disable_stream(
+        config: *mut rs2_config,
+        stream: rs2_stream,
+        error: *mut *mut rs2_error,
+    );
+}
+extern "C" {
+    #[doc = " Disable a device stream explicitly, to remove any requests on this stream profile.\n The stream can still be enabled due to pipeline computer vision module request. This call removes any filter on the\n stream configuration.\n\n \\param[in] config    A pointer to an instance of a config\n \\param[in] stream    Stream type, for which the filters are cleared\n \\param[in] index     Stream index, for which the filters are cleared\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_disable_indexed_stream(
+        config: *mut rs2_config,
+        stream: rs2_stream,
+        index: ::std::os::raw::c_int,
+        error: *mut *mut rs2_error,
+    );
+}
+extern "C" {
+    #[doc = " Disable all device stream explicitly, to remove any requests on the streams profiles.\n The streams can still be enabled due to pipeline computer vision module request. This call removes any filter on the\n streams configuration.\n\n \\param[in] config    A pointer to an instance of a config\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_config_disable_all_streams(config: *mut rs2_config, error: *mut *mut rs2_error);
+}
+extern "C" {
+    #[doc = " Resolve the configuration filters, to find a matching device and streams profiles.\n The method resolves the user configuration filters for the device and streams, and combines them with the requirements of\n the computer vision modules and processing blocks attached to the pipeline. If there are no conflicts of requests, it looks\n for an available device, which can satisfy all requests, and selects the first matching streams configuration. In the absence\n of any request, the rs2::config selects the first available device and the first color and depth streams configuration.\n The pipeline profile selection during \\c start() follows the same method. Thus, the selected profile is the same, if no\n change occurs to the available devices occurs.\n Resolving the pipeline configuration provides the application access to the pipeline selected device for advanced control.\n The returned configuration is not applied to the device, so the application doesn't own the device sensors. However, the\n application can call \\c enable_device(), to enforce the device returned by this method is selected by pipeline \\c start(),\n and configure the device and sensors options or extensions before streaming starts.\n\n \\param[in] config    A pointer to an instance of a config\n \\param[in] pipe  The pipeline for which the selected filters are applied\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return       A matching device and streams profile, which satisfies the filters and pipeline requests."]
+    pub fn rs2_config_resolve(
+        config: *mut rs2_config,
+        pipe: *mut rs2_pipeline,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline_profile;
+}
+extern "C" {
+    #[doc = " Check if the config can resolve the configuration filters, to find a matching device and streams profiles.\n The resolution conditions are as described in \\c resolve().\n\n \\param[in] config    A pointer to an instance of a config\n \\param[in] pipe  The pipeline for which the selected filters are applied\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return       True if a valid profile selection exists, false if no selection can be found under the config filters and the available devices."]
+    pub fn rs2_config_can_resolve(
+        config: *mut rs2_config,
+        pipe: *mut rs2_pipeline,
+        error: *mut *mut rs2_error,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[doc = " Create a pipeline instance\n The pipeline simplifies the user interaction with the device and computer vision processing modules.\n The class abstracts the camera configuration and streaming, and the vision modules triggering and threading.\n It lets the application focus on the computer vision output of the modules, or the device output data.\n The pipeline can manage computer vision modules, which are implemented as a processing blocks.\n The pipeline is the consumer of the processing block interface, while the application consumes the\n computer vision interface.\n \\param[in]  ctx    context\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_create_pipeline(
+        ctx: *mut rs2_context,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline;
+}
+extern "C" {
+    #[doc = " Stop the pipeline streaming.\n The pipeline stops delivering samples to the attached computer vision modules and processing blocks, stops the device streaming\n and releases the device resources used by the pipeline. It is the application's responsibility to release any frame reference it owns.\n The method takes effect only after \\c start() was called, otherwise an exception is raised.\n \\param[in] pipe  pipeline\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored"]
+    pub fn rs2_pipeline_stop(pipe: *mut rs2_pipeline, error: *mut *mut rs2_error);
+}
+extern "C" {
+    #[doc = " Wait until a new set of frames becomes available.\n The frames set includes time-synchronized frames of each enabled stream in the pipeline.\n The method blocks the calling thread, and fetches the latest unread frames set.\n Device frames, which were produced while the function wasn't called, are dropped. To avoid frame drops, this method should be called\n as fast as the device frame rate.\n The application can maintain the frames handles to defer processing. However, if the application maintains too long history, the device\n may lack memory resources to produce new frames, and the following call to this method shall fail to retrieve new frames, until resources\n are retained.\n \\param[in] pipe the pipeline\n \\param[in] timeout_ms   Max time in milliseconds to wait until an exception will be thrown\n \\param[out] error         if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return Set of coherent frames"]
+    pub fn rs2_pipeline_wait_for_frames(
+        pipe: *mut rs2_pipeline,
+        timeout_ms: ::std::os::raw::c_uint,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_frame;
+}
+extern "C" {
+    #[doc = " Check if a new set of frames is available and retrieve the latest undelivered set.\n The frames set includes time-synchronized frames of each enabled stream in the pipeline.\n The method returns without blocking the calling thread, with status of new frames available or not. If available, it fetches the\n latest frames set.\n Device frames, which were produced while the function wasn't called, are dropped. To avoid frame drops, this method should be called\n as fast as the device frame rate.\n The application can maintain the frames handles to defer processing. However, if the application maintains too long history, the device\n may lack memory resources to produce new frames, and the following calls to this method shall return no new frames, until resources are\n retained.\n \\param[in] pipe the pipeline\n \\param[out] output_frame frame handle to be released using rs2_release_frame\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return true if new frame was stored to output_frame"]
+    pub fn rs2_pipeline_poll_for_frames(
+        pipe: *mut rs2_pipeline,
+        output_frame: *mut *mut rs2_frame,
+        error: *mut *mut rs2_error,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[doc = " Wait until a new set of frames becomes available.\n The frames set includes time-synchronized frames of each enabled stream in the pipeline.\n The method blocks the calling thread, and fetches the latest unread frames set.\n Device frames, which were produced while the function wasn't called, are dropped. To avoid frame drops, this method should be called\n as fast as the device frame rate.\n The application can maintain the frames handles to defer processing. However, if the application maintains too long history, the device\n may lack memory resources to produce new frames, and the following call to this method shall fail to retrieve new frames, until resources\n are retained.\n \\param[in] pipe           the pipeline\n \\param[in] timeout_ms     max time in milliseconds to wait until a frame becomes available\n \\param[out] output_frame  frame handle to be released using rs2_release_frame\n \\param[out] error         if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return true if new frame was stored to output_frame"]
+    pub fn rs2_pipeline_try_wait_for_frames(
+        pipe: *mut rs2_pipeline,
+        output_frame: *mut *mut rs2_frame,
+        timeout_ms: ::std::os::raw::c_uint,
+        error: *mut *mut rs2_error,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[doc = " Delete a pipeline instance.\n Upon destruction, the pipeline will implicitly stop itself\n \\param[in] pipe to delete"]
+    pub fn rs2_delete_pipeline(pipe: *mut rs2_pipeline);
+}
+extern "C" {
+    #[doc = " Start the pipeline streaming with its default configuration.\n The pipeline streaming loop captures samples from the device, and delivers them to the attached computer vision modules\n and processing blocks, according to each module requirements and threading model.\n During the loop execution, the application can access the camera streams by calling \\c wait_for_frames() or \\c poll_for_frames().\n The streaming loop runs until the pipeline is stopped.\n Starting the pipeline is possible only when it is not started. If the pipeline was started, an exception is raised.\n\n \\param[in] pipe    a pointer to an instance of the pipeline\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return             The actual pipeline device and streams profile, which was successfully configured to the streaming device."]
+    pub fn rs2_pipeline_start(
+        pipe: *mut rs2_pipeline,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline_profile;
+}
+extern "C" {
+    #[doc = " Start the pipeline streaming according to the configuraion.\n The pipeline streaming loop captures samples from the device, and delivers them to the attached computer vision modules\n and processing blocks, according to each module requirements and threading model.\n During the loop execution, the application can access the camera streams by calling \\c wait_for_frames() or \\c poll_for_frames().\n The streaming loop runs until the pipeline is stopped.\n Starting the pipeline is possible only when it is not started. If the pipeline was started, an exception is raised.\n The pipeline selects and activates the device upon start, according to configuration or a default configuration.\n When the rs2::config is provided to the method, the pipeline tries to activate the config \\c resolve() result. If the application\n requests are conflicting with pipeline computer vision modules or no matching device is available on the platform, the method fails.\n Available configurations and devices may change between config \\c resolve() call and pipeline start, in case devices are connected\n or disconnected, or another application acquires ownership of a device.\n\n \\param[in] pipe    a pointer to an instance of the pipeline\n \\param[in] config   A rs2::config with requested filters on the pipeline configuration. By default no filters are applied.\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return             The actual pipeline device and streams profile, which was successfully configured to the streaming device."]
+    pub fn rs2_pipeline_start_with_config(
+        pipe: *mut rs2_pipeline,
+        config: *mut rs2_config,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline_profile;
+}
+extern "C" {
+    #[doc = " Start the pipeline streaming with its default configuration.\n The pipeline captures samples from the device, and delivers them to the through the provided frame callback.\n Starting the pipeline is possible only when it is not started. If the pipeline was started, an exception is raised.\n When starting the pipeline with a callback both \\c wait_for_frames() or \\c poll_for_frames() will throw exception.\n\n \\param[in] pipe     A pointer to an instance of the pipeline\n \\param[in] on_frame function pointer to register as per-frame callback\n \\param[in] user auxiliary  data the user wishes to receive together with every frame callback\n \\param[out] error   If non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return             The actual pipeline device and streams profile, which was successfully configured to the streaming device."]
+    pub fn rs2_pipeline_start_with_callback(
+        pipe: *mut rs2_pipeline,
+        on_frame: rs2_frame_callback_ptr,
+        user: *mut ::std::os::raw::c_void,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline_profile;
+}
+extern "C" {
+    #[doc = " Start the pipeline streaming with its default configuration.\n The pipeline captures samples from the device, and delivers them to the through the provided frame callback.\n Starting the pipeline is possible only when it is not started. If the pipeline was started, an exception is raised.\n When starting the pipeline with a callback both \\c wait_for_frames() or \\c poll_for_frames() will throw exception.\n\n \\param[in] pipe     A pointer to an instance of the pipeline\n \\param[in] callback callback object created from c++ application. ownership over the callback object is moved into the relevant streaming lock\n \\param[out] error   If non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return             The actual pipeline device and streams profile, which was successfully configured to the streaming device."]
+    pub fn rs2_pipeline_start_with_callback_cpp(
+        pipe: *mut rs2_pipeline,
+        callback: *mut rs2_frame_callback,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline_profile;
+}
+extern "C" {
+    #[doc = " Start the pipeline streaming according to the configuraion.\n The pipeline captures samples from the device, and delivers them to the through the provided frame callback.\n Starting the pipeline is possible only when it is not started. If the pipeline was started, an exception is raised.\n When starting the pipeline with a callback both \\c wait_for_frames() or \\c poll_for_frames() will throw exception.\n The pipeline selects and activates the device upon start, according to configuration or a default configuration.\n When the rs2::config is provided to the method, the pipeline tries to activate the config \\c resolve() result. If the application\n requests are conflicting with pipeline computer vision modules or no matching device is available on the platform, the method fails.\n Available configurations and devices may change between config \\c resolve() call and pipeline start, in case devices are connected\n or disconnected, or another application acquires ownership of a device.\n\n \\param[in] pipe     A pointer to an instance of the pipeline\n \\param[in] config   A rs2::config with requested filters on the pipeline configuration. By default no filters are applied.\n \\param[in] on_frame function pointer to register as per-frame callback\n \\param[in] user auxiliary  data the user wishes to receive together with every frame callback\n \\param[out] error   If non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return             The actual pipeline device and streams profile, which was successfully configured to the streaming device."]
+    pub fn rs2_pipeline_start_with_config_and_callback(
+        pipe: *mut rs2_pipeline,
+        config: *mut rs2_config,
+        on_frame: rs2_frame_callback_ptr,
+        user: *mut ::std::os::raw::c_void,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline_profile;
+}
+extern "C" {
+    #[doc = " Start the pipeline streaming according to the configuraion.\n The pipeline captures samples from the device, and delivers them to the through the provided frame callback.\n Starting the pipeline is possible only when it is not started. If the pipeline was started, an exception is raised.\n When starting the pipeline with a callback both \\c wait_for_frames() or \\c poll_for_frames() will throw exception.\n The pipeline selects and activates the device upon start, according to configuration or a default configuration.\n When the rs2::config is provided to the method, the pipeline tries to activate the config \\c resolve() result. If the application\n requests are conflicting with pipeline computer vision modules or no matching device is available on the platform, the method fails.\n Available configurations and devices may change between config \\c resolve() call and pipeline start, in case devices are connected\n or disconnected, or another application acquires ownership of a device.\n\n \\param[in] pipe     A pointer to an instance of the pipeline\n \\param[in] config   A rs2::config with requested filters on the pipeline configuration. By default no filters are applied.\n \\param[in] callback callback object created from c++ application. ownership over the callback object is moved into the relevant streaming lock\n \\param[out] error   If non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return             The actual pipeline device and streams profile, which was successfully configured to the streaming device."]
+    pub fn rs2_pipeline_start_with_config_and_callback_cpp(
+        pipe: *mut rs2_pipeline,
+        config: *mut rs2_config,
+        callback: *mut rs2_frame_callback,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline_profile;
+}
+extern "C" {
+    #[doc = " Return the active device and streams profiles, used by the pipeline.\n The pipeline streams profiles are selected during \\c start(). The method returns a valid result only when the pipeline is active -\n between calls to \\c start() and \\c stop().\n After \\c stop() is called, the pipeline doesn't own the device, thus, the pipeline selected device may change in subsequent activations.\n\n \\param[in] pipe    a pointer to an instance of the pipeline\n \\param[out] error  if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return  The actual pipeline device and streams profile, which was successfully configured to the streaming device on start."]
+    pub fn rs2_pipeline_get_active_profile(
+        pipe: *mut rs2_pipeline,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_pipeline_profile;
+}
+extern "C" {
+    #[doc = " Retrieve the device used by the pipeline.\n The device class provides the application access to control camera additional settings -\n get device information, sensor options information, options value query and set, sensor specific extensions.\n Since the pipeline controls the device streams configuration, activation state and frames reading, calling\n the device API functions, which execute those operations, results in unexpected behavior.\n The pipeline streaming device is selected during pipeline \\c start(). Devices of profiles, which are not returned by\n pipeline \\c start() or \\c get_active_profile(), are not guaranteed to be used by the pipeline.\n\n \\param[in] profile    A pointer to an instance of a pipeline profile\n \\param[out] error     if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return rs2_device* The pipeline selected device"]
+    pub fn rs2_pipeline_profile_get_device(
+        profile: *mut rs2_pipeline_profile,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_device;
+}
+extern "C" {
+    #[doc = " Return the selected streams profiles, which are enabled in this profile.\n\n \\param[in] profile    A pointer to an instance of a pipeline profile\n \\param[out] error     if non-null, receives any error that occurs during this call, otherwise, errors are ignored\n \\return   list of stream profiles"]
+    pub fn rs2_pipeline_profile_get_streams(
+        profile: *mut rs2_pipeline_profile,
+        error: *mut *mut rs2_error,
+    ) -> *mut rs2_stream_profile_list;
+}
+extern "C" {
+    #[doc = " Deletes an instance of a pipeline profile\n\n \\param[in] profile    A pointer to an instance of a pipeline profile"]
+    pub fn rs2_delete_pipeline_profile(profile: *mut rs2_pipeline_profile);
 }

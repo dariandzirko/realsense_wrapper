@@ -15,6 +15,8 @@ fn main() {
         .blocklist_item("FP_ZERO")
         .blocklist_item("FP_SUBNORMAL")
         .blocklist_item("FP_NORMAL")
+        .header("/home/darian/Documents/github/librealsense/include/librealsense2/h/rs_pipeline.h")
+        .header("/home/darian/Documents/github/librealsense/include/librealsense2/h/rs_frame.h")
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
