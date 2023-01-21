@@ -1,6 +1,8 @@
 use crate::bindings::*;
+use crate::types::format::Rs2Format;
 use crate::utils::*;
 use image::*;
+use num_traits::FromPrimitive;
 use std::ffi::CStr;
 use std::mem::MaybeUninit;
 
@@ -62,7 +64,7 @@ pub fn get_frame_info(frame: *mut rs2_frame) -> FrameInfo {
             frame_timestamp,
             frame_timestamp_domain,
             frame_metadata_time_of_arrival,
-            format,
+            format: Rs2Format::from_i32(format.assume_init() as i32).unwrap(),
             index: index.assume_init(),
             unique_id: unique_id.assume_init(),
             frame_rate: frame_rate.assume_init(),

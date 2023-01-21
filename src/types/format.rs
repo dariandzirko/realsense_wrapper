@@ -1,3 +1,8 @@
+use crate::bindings::*;
+use num_derive::{FromPrimitive, ToPrimitive};
+
+#[repr(i32)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Rs2Format {
     // #[doc = "< When passed to enable stream, librealsense will try to provide best suited format"]
     Any = rs2_format_RS2_FORMAT_ANY as i32,

@@ -1,5 +1,5 @@
 pub struct StreamProfile {
-    stream: Rs2StreamKind,
+    //stream: Rs2StreamKind,
     format: Rs2Format,
     index: i32,
     unique_id: i32,

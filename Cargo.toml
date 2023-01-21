@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 image = { version = "0.24.5" }
+num-traits = "0.2"
+num-derive = "0.3"
 
 [build-dependencies]
 bindgen = "0.63.0"
