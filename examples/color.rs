@@ -98,6 +98,7 @@ fn color_example() -> Option<bool> {
                 check_error(error);
 
                 println!("RGB frame arrived");
+                let image = frame_to_image();
                 println!("The first 10 bytes: ");
                 for i in 0..10 {
                     println!("{}", frame_data[i]);
@@ -160,14 +161,3 @@ unsafe fn print_device_info(device: *mut rs2_device) {
         ))
     );
 }
-
-// void print_device_info(rs2_device* dev)
-// {
-//     rs2_error* e = 0;
-//     printf("\nUsing device 0, an %s\n", rs2_get_device_info(dev, RS2_CAMERA_INFO_NAME, &e));
-//     check_error(e);
-//     printf("    Serial number: %s\n", rs2_get_device_info(dev, RS2_CAMERA_INFO_SERIAL_NUMBER, &e));
-//     check_error(e);
-//     printf("    Firmware version: %s\n\n", rs2_get_device_info(dev, RS2_CAMERA_INFO_FIRMWARE_VERSION, &e));
-//     check_error(e);
-// }
