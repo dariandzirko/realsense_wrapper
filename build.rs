@@ -1,6 +1,11 @@
 use std::path::{Path, PathBuf};
 
 fn main() {
+    // Tell cargo to look for shared libraries in the specified directory
+    println!("cargo:rustc-link-search=/usr/lib/x86_64-linux-gnu");
+
+    // Tell cargo to tell rustc to link the system shared library.
+    println!("cargo:rustc-link-lib=dylib=realsense2");
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!(
         "cargo:rerun-if-changed=/home/darian/Documents/github/realsense_wrapper/src/bindings.rs"
