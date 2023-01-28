@@ -110,31 +110,61 @@ pub fn frame_to_image(frame: *mut rs2_frame) {
         let frame_data = rs2_get_frame_data(frame, &mut error);
         check_error(error);
 
-        let slice =
-            slice::from_raw_parts(frame_data.cast::<u8>(), frame_info.bits_per_pixel as usize);
+        //Can change this loop to populating variable channels 1,2,3,4 and then use those in the correct order based on the format
 
         //Change this to a dynamic image eventually
         //Actually do something with this match statement
+        //Getting really close to the point where I will need to sue a dynamic image
+
+        println!("frame_info.format: {:?}", frame_info.format);
+
         match frame_info.format {
-            RGB8 => {
-                println!("Correct format! RGB8")
+            Rs2Format::RGB8 => {
+                let slice = slice::from_raw_parts(
+                    frame_data.cast::<u8>(),
+                    frame_info.bits_per_pixel as usize,
+                );
+
+                let mut curr_image =
+                    image::RgbImage::new(frame_info.width as u32, frame_info.height as u32);
+                for row in 0..frame_info.height {
+                    for col in 0..frame_info.width {
+                        let r = slice.get_unchecked((row * frame_info.stride + col * 3) as usize);
+                        let g =
+                            slice.get_unchecked((row * frame_info.stride + col * 3 + 1) as usize);
+                        let b =
+                            slice.get_unchecked((row * frame_info.stride + col * 3 + 2) as usize);
+
+                        let temp_pixel = image::Rgb([*r, *g, *b]);
+                        curr_image.put_pixel(col as u32, row as u32, temp_pixel);
+                    }
+                }
+                println!("Correct format! RGB8");
+                curr_image.save("color_example.png");
             }
+            Rs2Format::Z16 => {
+                let slice = slice::from_raw_parts(
+                    frame_data.cast::<u16>(),
+                    frame_info.bits_per_pixel as usize,
+                );
+
+                let mut curr_image =
+                    DynamicImage::new_luma16(frame_info.width as u32, frame_info.height as u32);
+
+                for row in 0..frame_info.height {
+                    for col in 0..frame_info.width {
+                        let bw = slice.get_unchecked((row * frame_info.stride + col * 3) as usize);
+
+                        curr_image
+                            .to_luma16()
+                            .put_pixel(col as u32, row as u32, Luma([*bw]));
+                    }
+                }
+                println!("Correct format! Z16");
+                curr_image.save("depth_example.png");
+            }
+
             _ => println!("I have not worked on this case yet"),
         }
-
-        //Can change this loop to populating variable channels 1,2,3,4 and then use those in the correct order based on the format
-        let mut curr_image =
-            image::RgbImage::new(frame_info.width as u32, frame_info.height as u32);
-        for row in 0..frame_info.height {
-            for col in 0..frame_info.width {
-                let r = slice.get_unchecked((row * frame_info.stride + col * 3) as usize);
-                let g = slice.get_unchecked((row * frame_info.stride + col * 3 + 1) as usize);
-                let b = slice.get_unchecked((row * frame_info.stride + col * 3 + 2) as usize);
-
-                let temp_pixel = image::Rgb([*r, *g, *b]);
-                curr_image.put_pixel(col as u32, row as u32, temp_pixel);
-            }
-        }
-        curr_image.save("color_example.png");
     }
 }
