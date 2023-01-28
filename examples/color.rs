@@ -64,54 +64,26 @@ fn color_example() -> Option<bool> {
             return None;
         }
 
-        loop {
-            let frames = rs2_pipeline_wait_for_frames(pipeline, RS2_DEFAULT_TIMEOUT, &mut error);
+        let frames = rs2_pipeline_wait_for_frames(pipeline, RS2_DEFAULT_TIMEOUT, &mut error);
+        check_error(error);
+
+        let num_of_frames = rs2_embedded_frames_count(frames, &mut error);
+        check_error(error);
+
+        for i in 0..num_of_frames {
+            let frame = rs2_extract_frame(frames, i, &mut error);
             check_error(error);
 
-            let num_of_frames = rs2_embedded_frames_count(frames, &mut error);
-            check_error(error);
-
-            for i in 0..num_of_frames {
-                let frame = rs2_extract_frame(frames, i, &mut error);
-                check_error(error);
-
-                let frame_data = rs2_get_frame_data(frame, &mut error);
-                check_error(error);
-
-                let frame_number = rs2_get_frame_number(frame, &mut error);
-                check_error(error);
-
-                let frame_timestamp = rs2_get_frame_timestamp(frame, &mut error);
-                check_error(error);
-
-                let frame_timestamp_domain = rs2_get_frame_timestamp_domain(frame, &mut error);
-                check_error(error);
-
-                let frame_timestamp_domain_str =
-                    CStr::from_ptr(rs2_timestamp_domain_to_string(frame_timestamp_domain));
-
-                let frame_metadata_time_of_arrival = rs2_get_frame_metadata(
-                    frame,
-                    rs2_frame_metadata_value_RS2_FRAME_METADATA_TIME_OF_ARRIVAL,
-                    &mut error,
-                );
-                check_error(error);
-
-                println!("RGB frame arrived");
-                let image = frame_to_image(frame);
-                println!("The first 10 bytes: ");
-                for i in 0..10 {
-                    println!("{}", frame_data[i]);
-                }
-                println!("Frame number: {}", frame_number);
-                println!("Timestamp: {}", frame_timestamp);
-                println!("Timestamp domain: {:?}", frame_timestamp_domain_str);
-                println!("Time of arrival: {}", frame_metadata_time_of_arrival);
-                rs2_release_frame(frame);
-            }
-
-            rs2_release_frame(frames);
+            println!("RGB frame arrived");
+            realsense_wrapper::frame_to_image(frame);
+            // println!("The first 10 bytes: ");
+            // for i in 0..10 {
+            //     println!("{}", frame_data[i]);
+            // }
+            rs2_release_frame(frame);
         }
+
+        rs2_release_frame(frames);
 
         rs2_pipeline_stop(pipeline, &mut error);
         check_error(error);

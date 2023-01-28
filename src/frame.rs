@@ -100,7 +100,7 @@ pub unsafe fn get_frame_info(frame: *mut rs2_frame) -> FrameInfo {
     };
 }
 
-fn frame_to_image(frame: *mut rs2_frame) {
+pub fn frame_to_image(frame: *mut rs2_frame) {
     unsafe {
         let mut error = std::ptr::null_mut::<rs2_error>();
 
@@ -116,12 +116,15 @@ fn frame_to_image(frame: *mut rs2_frame) {
         //Change this to a dynamic image eventually
         //Actually do something with this match statement
         match frame_info.format {
-            RGB8 => {}
+            RGB8 => {
+                println!("Correct format! RGB8")
+            }
             _ => println!("I have not worked on this case yet"),
         }
 
         //Can change this loop to populating variable channels 1,2,3,4 and then use those in the correct order based on the format
-        let mut image = image::RgbImage::new(frame_info.width as u32, frame_info.height as u32);
+        let mut curr_image =
+            image::RgbImage::new(frame_info.width as u32, frame_info.height as u32);
         for row in 0..frame_info.height {
             for col in 0..frame_info.width {
                 let r = slice.get_unchecked((row * frame_info.stride + col * 3) as usize);
@@ -129,58 +132,9 @@ fn frame_to_image(frame: *mut rs2_frame) {
                 let b = slice.get_unchecked((row * frame_info.stride + col * 3 + 2) as usize);
 
                 let temp_pixel = image::Rgb([*r, *g, *b]);
-                image.put_pixel(col as u32, row as u32, temp_pixel);
+                curr_image.put_pixel(col as u32, row as u32, temp_pixel);
             }
         }
+        curr_image.save("color_example.png");
     }
 }
-
-//     format: Rs2Format,
-// data_size_in_bytes: usize,
-// data: *const c_void,
-// stride_in_bytes: usize,
-// col: usize,
-// row: usize,
-
-// let slice = slice::from_raw_parts(data.cast::<u8>(), data_size_in_bytes);
-// let offset = (row * stride_in_bytes) + (col * 3);
-
-// PixelKind::Bgr8 {
-//     b: slice.get_unchecked(offset),
-//     g: slice.get_unchecked(offset + 1),
-//     r: slice.get_unchecked(offset + 2),
-
-//         let timestamp_domain =
-//             sys::rs2_get_frame_timestamp_domain(frame_ptr.as_ptr(), &mut err);
-//         check_rs2_error!(err, FrameConstructionError::CouldNotGetTimestampDomain)?;
-
-//         let profile_ptr = sys::rs2_get_frame_stream_profile(frame_ptr.as_ptr(), &mut err);
-//         check_rs2_error!(err, FrameConstructionError::CouldNotGetFrameStreamProfile)?;
-
-//         let nonnull_profile_ptr =
-//             NonNull::new(profile_ptr as *mut sys::rs2_stream_profile).unwrap();
-//         let profile = StreamProfile::try_from(nonnull_profile_ptr)?;
-
-//         let data_ptr = sys::rs2_get_frame_data(frame_ptr.as_ptr(), &mut err);
-//         check_rs2_error!(err, FrameConstructionError::CouldNotGetData)?;
-
-//         let nonnull_data_ptr = NonNull::new(data_ptr as *mut std::os::raw::c_void).unwrap();
-
-//         Ok(ImageFrame {
-//             frame_ptr,
-//             width: width as usize,
-//             height: height as usize,
-//             stride: stride as usize,
-//             bits_per_pixel: bits_per_pixel as usize,
-//             timestamp,
-//             timestamp_domain: Rs2TimestampDomain::from_i32(timestamp_domain as i32).unwrap(),
-//             frame_number,
-//             frame_stream_profile: profile,
-//             data_size_in_bytes: size as usize,
-//             data: nonnull_data_ptr,
-//             should_drop: true,
-//             _phantom: PhantomData::<K> {},
-//         })
-//     }
-// }
-// }
