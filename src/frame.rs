@@ -149,15 +149,17 @@ pub fn frame_to_image(frame: *mut rs2_frame) {
                 );
 
                 let mut curr_image =
-                    DynamicImage::new_luma16(frame_info.width as u32, frame_info.height as u32);
+                    DynamicImage::new_luma16(frame_info.width as u32, frame_info.height as u32)
+                        .to_luma16();
 
                 for row in 0..frame_info.height {
                     for col in 0..frame_info.width {
-                        let bw = slice.get_unchecked((row * frame_info.stride + col * 3) as usize);
+                        let bw = slice.get_unchecked(
+                            (row * frame_info.stride / std::mem::size_of::<u16>() as i32 + col)
+                                as usize,
+                        );
 
-                        curr_image
-                            .to_luma16()
-                            .put_pixel(col as u32, row as u32, Luma([*bw]));
+                        curr_image.put_pixel(col as u32, row as u32, Luma([*bw]));
                     }
                 }
                 println!("Correct format! Z16");
