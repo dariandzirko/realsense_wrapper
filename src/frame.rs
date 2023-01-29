@@ -117,6 +117,7 @@ pub fn frame_to_image(frame: *mut rs2_frame) {
         //Getting really close to the point where I will need to sue a dynamic image
 
         println!("frame_info.format: {:?}", frame_info.format);
+        println!("frame_info.stride: {}", frame_info.stride);
 
         match frame_info.format {
             Rs2Format::RGB8 => {
@@ -142,6 +143,7 @@ pub fn frame_to_image(frame: *mut rs2_frame) {
                 println!("Correct format! RGB8");
                 curr_image.save("color_example.png");
             }
+
             Rs2Format::Z16 => {
                 let slice = slice::from_raw_parts(
                     frame_data.cast::<u16>(),
@@ -164,6 +166,30 @@ pub fn frame_to_image(frame: *mut rs2_frame) {
                 }
                 println!("Correct format! Z16");
                 curr_image.save("depth_example.png");
+            }
+
+            Rs2Format::Y16 => {
+                let slice = slice::from_raw_parts(
+                    frame_data.cast::<u16>(),
+                    frame_info.bits_per_pixel as usize,
+                );
+
+                let mut curr_image =
+                    DynamicImage::new_luma16(frame_info.width as u32, frame_info.height as u32)
+                        .to_luma16();
+
+                for row in 0..frame_info.height {
+                    for col in 0..frame_info.width {
+                        let bw = slice.get_unchecked(
+                            (row * frame_info.stride / std::mem::size_of::<u16>() as i32 + col)
+                                as usize,
+                        );
+
+                        curr_image.put_pixel(col as u32, row as u32, Luma([*bw]));
+                    }
+                }
+                println!("Correct format! Y16");
+                curr_image.save("blackwhite_example.png");
             }
 
             _ => println!("I have not worked on this case yet"),
