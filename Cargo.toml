@@ -9,6 +9,7 @@ edition = "2021"
 image = { version = "0.24.5" }
 num-traits = "0.2"
 num-derive = "0.3"
+ndarray = "0.15.6"
 
 [build-dependencies]
 bindgen = "0.63.0"
