@@ -26,7 +26,7 @@ impl BetterRawPixel {
         }
     }
 
-    pub fn from_ka() -> BetterRawPixel {}
+    //pub fn from_ka() -> BetterRawPixel {}
 
     pub fn from_rgb(r: u8, g: u8, b: u8) -> BetterRawPixel {
         BetterRawPixel {
@@ -38,8 +38,8 @@ impl BetterRawPixel {
         }
     }
 
-    pub fn from_rgba() -> BetterRawPixel {}
-    pub fn from_lumchrom() -> BetterRawPixel {}
+    //pub fn from_rgba() -> BetterRawPixel {}
+    //pub fn from_lumchrom() -> BetterRawPixel {}
 }
 
 struct ImageData {
@@ -62,7 +62,7 @@ impl ImageData {
         stride: usize,
     ) -> ImageData {
         Self {
-            raw_data: Array2::u8(height, stride),
+            raw_data: Array2::<u8>::zeros((height, stride)),
             format: format,
             width: width,
             height: height,
@@ -106,14 +106,18 @@ impl ImageData {
                 //displayng the data
                 let temp: u16 = ((self.raw_data[[row, col]] as u16) << BITS_IN_A_BYTE as u16)
                     | self.raw_data[[row, col + 1]] as u16;
-                return BetterRawPixel::from_k(temp / u16::MAX * u8::MAX as u16);
+                return BetterRawPixel::from_k(
+                    (temp / u16::MAX * u8::MAX as u16).try_into().unwrap(),
+                );
             }
 
             Rs2Format::Z16 => {
                 //Depth data is seemingly also just in black and white
                 let temp: u16 = ((self.raw_data[[row, col]] as u16) << 8)
                     | self.raw_data[[row, col + 1]] as u16;
-                return BetterRawPixel::from_k((temp / u16::MAX * u8::MAX));
+                return BetterRawPixel::from_k(
+                    (temp / u16::MAX * u8::MAX as u16).try_into().unwrap(),
+                );
             }
 
             _ => {
