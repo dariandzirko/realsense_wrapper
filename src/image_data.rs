@@ -1,5 +1,6 @@
 use std::slice;
 
+use image::{DynamicImage, GrayImage, RgbImage};
 use ndarray::Array2;
 
 use crate::{
@@ -114,6 +115,26 @@ impl ImageData {
                     (temp / u16::MAX * u8::MAX as u16).try_into().unwrap(),
                 );
             }
+
+            _ => {
+                unimplemented!("I have not worked on this format yet");
+            }
+        }
+    }
+
+    pub fn to_luma_image() -> GrayImage {
+        //Double iter? Literally no but something that is iterating over the u8 buffer then mapping the row cols to the temp image. SHould be a minimal
+        //lines
+    }
+    pub fn to_rgb_image() -> RgbImage {}
+
+    pub fn to_image(&self) -> DynamicImage {
+        match self.format {
+            Rs2Format::RGB8 => return image::DynamicImage::ImageLuma8(self.to_rgb_image()),
+
+            Rs2Format::Y16 => return image::DynamicImage::ImageLuma8(self.to_luma_image()),
+
+            Rs2Format::Z16 => return image::DynamicImage::ImageLuma8(self.to_luma_image()),
 
             _ => {
                 unimplemented!("I have not worked on this format yet");

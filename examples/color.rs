@@ -76,10 +76,7 @@ fn color_example() -> Option<bool> {
 
             println!("RGB frame arrived");
             realsense_wrapper::frame_to_image(frame);
-            // println!("The first 10 bytes: ");
-            // for i in 0..10 {
-            //     println!("{}", frame_data[i]);
-            // }
+
             rs2_release_frame(frame);
         }
 

@@ -82,17 +82,14 @@ fn image_data_example() -> Option<bool> {
             println!("RGB frame arrived");
             let mut test_data = realsense_wrapper::ImageData::new(
                 frame_info.format,
-                WIDTH,
-                HEIGHT,
+                frame_info.width as usize,
+                frame_info.height as usize,
                 frame_info.bits_per_pixel as usize,
                 frame_info.stride as usize,
             );
 
             test_data.copy_data_from_frame(frame);
-            // println!("The first 10 bytes: ");
-            // for i in 0..10 {
-            //     println!("{}", frame_data[i]);
-            // }
+
             rs2_release_frame(frame);
         }
 
