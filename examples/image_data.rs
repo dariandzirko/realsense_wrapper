@@ -3,8 +3,8 @@ use std::ffi::CStr;
 
 //rs2_stream_RS2_STREAM_COLOR
 //rs2_format_RS2_FORMAT_RGB8
-const WIDTH: u32 = 640;
-const HEIGHT: u32 = 480;
+const WIDTH: usize = 640;
+const HEIGHT: usize = 480;
 const FPS: u32 = 30;
 const STREAM_INDEX: u32 = 0;
 
@@ -76,10 +76,19 @@ fn image_data_example() -> Option<bool> {
             let frame = rs2_extract_frame(frames, i, &mut error);
             check_error(error);
 
+            let frame_info = get_frame_info(frame); //should probably just give the struct the frame info and extract all the data
+            check_error(error);
+
             println!("RGB frame arrived");
-            let test_data = ImageData::new();
+            let mut test_data = realsense_wrapper::ImageData::new(
+                frame_info.format,
+                WIDTH,
+                HEIGHT,
+                frame_info.bits_per_pixel as usize,
+                frame_info.stride as usize,
+            );
+
             test_data.copy_data_from_frame(frame);
-            realsense_wrapper::frame_to_image(frame);
             // println!("The first 10 bytes: ");
             // for i in 0..10 {
             //     println!("{}", frame_data[i]);

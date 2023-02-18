@@ -3,8 +3,7 @@ use std::slice;
 use ndarray::Array2;
 
 use crate::{
-    check_error, format::Rs2Format, get_frame_info, rs2_error, rs2_frame, rs2_get_frame_data,
-    BITS_IN_A_BYTE,
+    check_error, format::Rs2Format, rs2_error, rs2_frame, rs2_get_frame_data, BITS_IN_A_BYTE,
 };
 
 pub struct BetterRawPixel {
@@ -42,7 +41,7 @@ impl BetterRawPixel {
     //pub fn from_lumchrom() -> BetterRawPixel {}
 }
 
-struct ImageData {
+pub struct ImageData {
     raw_data: Array2<u8>, //this size should be height * stride, where stride is width*bytes per pixel
     pub format: Rs2Format,
     pub width: usize,
@@ -58,7 +57,6 @@ impl ImageData {
         width: usize,
         height: usize,
         bits_per_pixel: usize,
-        bytes_per_pixel: usize,
         stride: usize,
     ) -> ImageData {
         Self {
@@ -74,9 +72,6 @@ impl ImageData {
 
     pub unsafe fn copy_data_from_frame(&mut self, frame: *mut rs2_frame) {
         let mut error = std::ptr::null_mut::<rs2_error>();
-
-        let frame_info = get_frame_info(frame);
-        check_error(error);
 
         let frame_data = rs2_get_frame_data(frame, &mut error);
         check_error(error);

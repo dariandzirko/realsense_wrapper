@@ -14,14 +14,14 @@ pub struct FrameInfo {
     frame_timestamp: f64,
     frame_timestamp_domain: u32,
     frame_metadata_time_of_arrival: i64,
-    format: Rs2Format,
+    pub format: Rs2Format,
     index: i32,
     unique_id: i32,
     frame_rate: i32,
     width: i32,
     height: i32,
-    bits_per_pixel: i32,
-    stride: i32,
+    pub bits_per_pixel: i32,
+    pub stride: i32,
     data_size: i32,
 }
 
