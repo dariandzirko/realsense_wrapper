@@ -123,8 +123,8 @@ impl ImageData {
     }
 
     pub fn to_luma_image() -> GrayImage {
-        //Double iter? Literally no but something that is iterating over the u8 buffer then mapping the row cols to the temp image. SHould be a minimal
-        //lines
+        //Double iter? Literally no but something that is iterating over the u8 buffer then mapping the row cols to the temp image
+        //Should be a minimal lines
     }
     pub fn to_rgb_image() -> RgbImage {}
 
