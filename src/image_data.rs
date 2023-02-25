@@ -122,15 +122,42 @@ impl ImageData {
         }
     }
 
-    pub fn to_luma_image() -> GrayImage {
-        //Double iter? Literally no but something that is iterating over the u8 buffer then mapping the row cols to the temp image
-        //Should be a minimal lines
+    pub fn to_luma_image(&self) -> GrayImage {
+        let mut result = GrayImage::new(self.width as u32, self.height as u32);
+
+        self.raw_data.indexed_iter().for_each(|((row, col), data)| {
+            result.put_pixel(row as u32, col as u32, image::Luma::<u8>([*data]))
+        });
+
+        return result;
     }
-    pub fn to_rgb_image() -> RgbImage {}
+
+    pub fn to_rgb_image(&self) -> RgbImage {
+        let mut result = RgbImage::new(self.width as u32, self.height as u32);
+
+        //This is wrong because the iterator will be over the bytes but I need to do every 3 bytes here
+        //Step by 3 should work
+        self.raw_data
+            .indexed_iter()
+            .step_by(3)
+            .for_each(|((row, col), _data)| {
+                result.put_pixel(
+                    row as u32,
+                    col as u32,
+                    image::Rgb::<u8>([
+                        self.raw_data[[row, col]],
+                        self.raw_data[[row, col + 1]],
+                        self.raw_data[[row, col + 2]],
+                    ]),
+                )
+            });
+
+        return result;
+    }
 
     pub fn to_image(&self) -> DynamicImage {
         match self.format {
-            Rs2Format::RGB8 => return image::DynamicImage::ImageLuma8(self.to_rgb_image()),
+            Rs2Format::RGB8 => return image::DynamicImage::ImageRgb8(self.to_rgb_image()),
 
             Rs2Format::Y16 => return image::DynamicImage::ImageLuma8(self.to_luma_image()),
 
