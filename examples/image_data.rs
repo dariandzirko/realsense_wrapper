@@ -89,6 +89,7 @@ fn image_data_example() -> Option<bool> {
             );
 
             test_data.copy_data_from_frame(frame);
+            println!("{:?}", test_data);
             test_data.to_rgb_image().save("image_data_rgb.png");
             rs2_release_frame(frame);
         }

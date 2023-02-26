@@ -42,6 +42,7 @@ impl BetterRawPixel {
     //pub fn from_lumchrom() -> BetterRawPixel {}
 }
 
+#[derive(Debug)]
 pub struct ImageData {
     raw_data: Array2<u8>, //this size should be height * stride, where stride is width*bytes per pixel
     pub format: Rs2Format,
@@ -81,8 +82,7 @@ impl ImageData {
 
         for row in 0..self.height {
             for col in 0..self.stride {
-                self.raw_data[[row, col]] =
-                    *slice.get_unchecked(row * self.stride + col * self.bytes_per_pixel);
+                self.raw_data[[row, col]] = *slice.get_unchecked(row * self.stride + col);
             }
         }
     }
@@ -91,9 +91,9 @@ impl ImageData {
         match self.format {
             Rs2Format::RGB8 => {
                 return BetterRawPixel::from_rgb(
-                    self.raw_data[[row, col]],
-                    self.raw_data[[row, col + 1]],
-                    self.raw_data[[row, col + 2]],
+                    self.raw_data[[row, col * self.bytes_per_pixel]],
+                    self.raw_data[[row, col * self.bytes_per_pixel + 1]],
+                    self.raw_data[[row, col * self.bytes_per_pixel + 2]],
                 );
             }
 
@@ -125,6 +125,7 @@ impl ImageData {
     pub fn to_luma_image(&self) -> GrayImage {
         let mut result = GrayImage::new(self.width as u32, self.height as u32);
 
+        //Wtf is this use better raw pixel
         self.raw_data.indexed_iter().for_each(|((row, col), data)| {
             result.put_pixel(row as u32, col as u32, image::Luma::<u8>([*data]))
         });
@@ -135,15 +136,17 @@ impl ImageData {
     pub fn to_rgb_image(&self) -> RgbImage {
         let mut result = RgbImage::new(self.width as u32, self.height as u32);
 
-        //This is wrong because the iterator will be over the bytes but I need to do every 3 bytes here
-        //Step by 3 should work
+        //This is wrong because the iterator will be over the bytes but I need to do every 4 bytes here because stride
+        //Use better raw pixel
         self.raw_data
             .indexed_iter()
             .step_by(3)
             .for_each(|((row, col), _data)| {
+                println!("row: {}, col: {}", row, col);
+
                 result.put_pixel(
+                    (col / 3) as u32,
                     row as u32,
-                    col as u32,
                     image::Rgb::<u8>([
                         self.raw_data[[row, col]],
                         self.raw_data[[row, col + 1]],
