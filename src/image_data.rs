@@ -142,8 +142,6 @@ impl ImageData {
             .indexed_iter()
             .step_by(3)
             .for_each(|((row, col), _data)| {
-                println!("row: {}, col: {}", row, col);
-
                 result.put_pixel(
                     (col / 3) as u32,
                     row as u32,
