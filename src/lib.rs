@@ -4,6 +4,7 @@
 mod bindings;
 mod frame;
 mod image_data;
+mod realsense_init;
 mod types;
 mod utils;
 
