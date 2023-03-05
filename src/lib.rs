@@ -11,5 +11,6 @@ mod utils;
 pub use bindings::*;
 pub use frame::*;
 pub use image_data::*;
+pub use realsense_init::*;
 pub use types::*;
 pub use utils::*;
