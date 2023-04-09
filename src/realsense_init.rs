@@ -1,7 +1,6 @@
 use crate::{bindings::*, check_error, get_frame_info, print_device_info, ImageData};
 
 pub struct RealsenseInstance {
-    pub error: *mut rs2_error, //I shouldn't need this
     pub context: *mut rs2_context,
     pub device: *mut rs2_device,
     pub pipeline: *mut rs2_pipeline,
@@ -52,7 +51,6 @@ impl RealsenseInstance {
             rs2_delete_device_list(device_list); //might cause errors if you delete the device_list but keep the device
 
             RealsenseInstance {
-                error: error,
                 context: context,
                 device: device,
                 pipeline: pipeline,
@@ -85,6 +83,8 @@ impl FrameBuffer {
         format: rs2_format, //rs2_format_RS2_FORMAT_RGB8//
     ) {
         unsafe {
+            let mut error = std::ptr::null_mut::<rs2_error>();
+
             rs2_config_enable_stream(
                 realsense.config,
                 stream,
@@ -93,43 +93,35 @@ impl FrameBuffer {
                 height,
                 format,
                 fps,
-                &mut realsense.error,
+                &mut error,
             );
 
-            realsense.pipeline_profile = rs2_pipeline_start_with_config(
-                realsense.pipeline,
-                realsense.config,
-                &mut realsense.error,
-            );
-            check_error(realsense.error);
-
-            while (true) {
-                self.pull_frame(realsense);
-            }
+            realsense.pipeline_profile =
+                rs2_pipeline_start_with_config(realsense.pipeline, realsense.config, &mut error);
+            check_error(error);
         }
     }
 
     pub fn pull_frame(&mut self, realsense: &mut RealsenseInstance) {
         unsafe {
-            let frames = rs2_pipeline_wait_for_frames(
-                realsense.pipeline,
-                RS2_DEFAULT_TIMEOUT,
-                &mut realsense.error,
-            );
-            check_error(realsense.error);
+            let mut error = std::ptr::null_mut::<rs2_error>();
+
+            let frames =
+                rs2_pipeline_wait_for_frames(realsense.pipeline, RS2_DEFAULT_TIMEOUT, &mut error);
+            check_error(error);
 
             //This num_frame is something worth investigating
-            let num_of_frames = rs2_embedded_frames_count(frames, &mut realsense.error);
-            check_error(realsense.error);
+            let _num_of_frames = rs2_embedded_frames_count(frames, &mut error);
+            check_error(error);
 
-            for i in 0..num_of_frames {
-                let frame = rs2_extract_frame(frames, i, &mut realsense.error);
-                check_error(realsense.error);
+            // for i in 0..num_of_frames {
+            let frame = rs2_extract_frame(frames, 0, &mut error);
+            check_error(error);
 
-                self.swap_frames(frame);
+            self.swap_frames(frame);
 
-                rs2_release_frame(frame);
-            }
+            rs2_release_frame(frame);
+            // }
             rs2_release_frame(frames);
         }
     }
@@ -167,8 +159,10 @@ impl FrameBuffer {
 impl Drop for RealsenseInstance {
     fn drop(&mut self) {
         unsafe {
-            rs2_pipeline_stop(self.pipeline, &mut self.error);
-            check_error(self.error);
+            let mut error = std::ptr::null_mut::<rs2_error>();
+
+            rs2_pipeline_stop(self.pipeline, &mut error);
+            check_error(error);
             rs2_delete_pipeline_profile(self.pipeline_profile);
             rs2_delete_config(self.config);
             rs2_delete_pipeline(self.pipeline);
