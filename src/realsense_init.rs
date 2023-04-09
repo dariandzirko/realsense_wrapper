@@ -8,6 +8,10 @@ pub struct RealsenseInstance {
     pub pipeline_profile: *mut rs2_pipeline_profile,
 }
 
+unsafe impl Sync for RealsenseInstance {}
+
+unsafe impl Send for RealsenseInstance {}
+
 pub struct FrameBuffer {
     curr_frame: *mut rs2_frame,
     next_frame: *mut rs2_frame,
