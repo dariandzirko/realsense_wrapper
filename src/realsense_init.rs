@@ -1,7 +1,7 @@
 use crate::{bindings::*, check_error, get_frame_info, print_device_info, ImageData};
 
 pub struct RealsenseInstance {
-    pub error: *mut rs2_error,
+    pub error: *mut rs2_error, //I shouldn't need this
     pub context: *mut rs2_context,
     pub device: *mut rs2_device,
     pub pipeline: *mut rs2_pipeline,
@@ -13,6 +13,10 @@ pub struct FrameBuffer {
     curr_frame: *mut rs2_frame,
     next_frame: *mut rs2_frame,
 }
+
+unsafe impl Sync for FrameBuffer {}
+
+unsafe impl Send for FrameBuffer {}
 
 impl RealsenseInstance {
     //This might want to take in index, in the case of more than 1 device
