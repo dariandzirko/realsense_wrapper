@@ -162,6 +162,7 @@ impl FrameBuffer {
                 frame_info.stride as usize,
             );
 
+            println!("Copy data from frame = bad?");
             frame_data.copy_data_from_frame(self.curr_frame);
 
             return frame_data;
@@ -188,6 +189,8 @@ impl Drop for RealsenseInstance {
 impl Drop for FrameBuffer {
     fn drop(&mut self) {
         unsafe {
+            println!("Am I dropping too soon");
+
             rs2_release_frame(self.curr_frame);
             rs2_release_frame(self.next_frame);
         }
