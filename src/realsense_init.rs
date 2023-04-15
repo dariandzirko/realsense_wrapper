@@ -126,6 +126,7 @@ impl FrameBuffer {
             check_error(error);
 
             println!("Before rs2_extract_frame");
+            println!("num_of_frames: {}", num_of_frames);
             for i in 0..num_of_frames {
                 let frame = rs2_extract_frame(frames, 0, &mut error);
                 println!("frame is null: {}", frame.is_null());
