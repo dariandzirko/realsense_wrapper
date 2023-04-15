@@ -113,6 +113,8 @@ impl FrameBuffer {
                 rs2_pipeline_wait_for_frames(realsense.pipeline, RS2_DEFAULT_TIMEOUT, &mut error);
             check_error(error);
 
+            println!("frames is null: {}", frames.is_null());
+
             //This num_frame is something worth investigating
             let num_of_frames = rs2_embedded_frames_count(frames, &mut error);
             check_error(error);
@@ -173,6 +175,8 @@ impl FrameBuffer {
 impl Drop for RealsenseInstance {
     fn drop(&mut self) {
         unsafe {
+            println!("Drop for RealsenseInstance");
+
             let mut error = std::ptr::null_mut::<rs2_error>();
 
             rs2_pipeline_stop(self.pipeline, &mut error);
@@ -189,6 +193,7 @@ impl Drop for RealsenseInstance {
 impl Drop for FrameBuffer {
     fn drop(&mut self) {
         unsafe {
+            println!("Drop for FrameBuffer");
             rs2_release_frame(self.curr_frame);
             rs2_release_frame(self.next_frame);
         }
