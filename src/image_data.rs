@@ -76,6 +76,7 @@ impl ImageData {
         let mut error = std::ptr::null_mut::<rs2_error>();
 
         let frame_data = rs2_get_frame_data(frame, &mut error);
+        println!("I am in copy data from frame");
         check_error(error);
 
         let slice = slice::from_raw_parts(frame_data.cast::<u8>(), self.bits_per_pixel as usize);

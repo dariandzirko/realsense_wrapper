@@ -189,8 +189,6 @@ impl Drop for RealsenseInstance {
 impl Drop for FrameBuffer {
     fn drop(&mut self) {
         unsafe {
-            println!("Am I dropping too soon");
-
             rs2_release_frame(self.curr_frame);
             rs2_release_frame(self.next_frame);
         }
