@@ -109,16 +109,19 @@ impl FrameBuffer {
         unsafe {
             let mut error = std::ptr::null_mut::<rs2_error>();
 
-            println!("Here in pull_frame");
+            println!("Before rs2_pipeline_wait_for_frames");
 
             let frames =
                 rs2_pipeline_wait_for_frames(realsense.pipeline, RS2_DEFAULT_TIMEOUT, &mut error);
             check_error(error);
 
             //This num_frame is something worth investigating
+            println!("Before rs2_embedded_frames_count");
+
             let _num_of_frames = rs2_embedded_frames_count(frames, &mut error);
             check_error(error);
 
+            println!("Before rs2_extract_frame");
             // for i in 0..num_of_frames {
             let frame = rs2_extract_frame(frames, 0, &mut error);
             check_error(error);
