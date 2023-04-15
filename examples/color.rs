@@ -17,8 +17,8 @@ fn main() {
 
 fn color_example() -> Option<bool> {
     let mut realsense = RealsenseInstance::new();
-
     let mut frame_buffer = FrameBuffer::new();
+    let mut error = std::ptr::null_mut::<rs2_error>();
 
     let stream_index = 0;
     let width = 640;
@@ -36,15 +36,12 @@ fn color_example() -> Option<bool> {
             height,
             format,
             fps,
-            &mut realsense.error,
+            &mut error,
         );
 
-        let pipeline_profile = rs2_pipeline_start_with_config(
-            realsense.pipeline,
-            realsense.config,
-            &mut realsense.error,
-        );
-        check_error(realsense.error);
+        let pipeline_profile =
+            rs2_pipeline_start_with_config(realsense.pipeline, realsense.config, &mut error);
+        check_error(error);
     }
 
     frame_buffer.pull_frame(&mut realsense);

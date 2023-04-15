@@ -64,6 +64,35 @@ impl RealsenseInstance {
         }
     }
 
+    pub fn stream_frames(
+        &mut self,
+        stream_index: i32,
+        width: i32,
+        height: i32,
+        fps: i32,
+        stream: rs2_stream, //rs2_stream_RS2_STREAM_COLOR//
+        format: rs2_format, //rs2_format_RS2_FORMAT_RGB8//
+    ) {
+        unsafe {
+            let mut error = std::ptr::null_mut::<rs2_error>();
+
+            rs2_config_enable_stream(
+                self.config,
+                stream,
+                stream_index,
+                width,
+                height,
+                format,
+                fps,
+                &mut error,
+            );
+
+            self.pipeline_profile =
+                rs2_pipeline_start_with_config(self.pipeline, self.config, &mut error);
+            check_error(error);
+        }
+    }
+
     //This should take in the parameters to configure the stream
 }
 
@@ -76,39 +105,11 @@ impl FrameBuffer {
         }
     }
 
-    pub fn stream_frames(
-        &mut self,
-        realsense: &mut RealsenseInstance,
-        stream_index: i32,
-        width: i32,
-        height: i32,
-        fps: i32,
-        stream: rs2_stream, //rs2_stream_RS2_STREAM_COLOR//
-        format: rs2_format, //rs2_format_RS2_FORMAT_RGB8//
-    ) {
-        unsafe {
-            let mut error = std::ptr::null_mut::<rs2_error>();
-
-            rs2_config_enable_stream(
-                realsense.config,
-                stream,
-                stream_index,
-                width,
-                height,
-                format,
-                fps,
-                &mut error,
-            );
-
-            realsense.pipeline_profile =
-                rs2_pipeline_start_with_config(realsense.pipeline, realsense.config, &mut error);
-            check_error(error);
-        }
-    }
-
     pub fn pull_frame(&mut self, realsense: &mut RealsenseInstance) {
         unsafe {
             let mut error = std::ptr::null_mut::<rs2_error>();
+
+            println!("Here in pull_frame");
 
             let frames =
                 rs2_pipeline_wait_for_frames(realsense.pipeline, RS2_DEFAULT_TIMEOUT, &mut error);
