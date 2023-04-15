@@ -77,10 +77,14 @@ impl ImageData {
         let mut error = std::ptr::null_mut::<rs2_error>();
 
         let frame_data = rs2_get_frame_data(frame, &mut error);
-        println!("frame_data is null?: {}", frame_data.is_null());
+        println!(
+            "Here copy_data_from_frame frame_data is null?: {}",
+            frame_data.is_null()
+        );
         check_error(error);
 
         let slice = slice::from_raw_parts(frame_data.cast::<u8>(), self.bits_per_pixel as usize);
+        println!("*slice.is_empty() : {}", slice.is_empty());
 
         for row in 0..self.height {
             for col in 0..self.stride {
