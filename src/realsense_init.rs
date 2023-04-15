@@ -114,6 +114,10 @@ impl FrameBuffer {
             check_error(error);
 
             println!("frames is null: {}", frames.is_null());
+            println!(
+                "realsense.pipeline is null: {}",
+                realsense.pipeline.is_null()
+            );
 
             //This num_frame is something worth investigating
             let num_of_frames = rs2_embedded_frames_count(frames, &mut error);
