@@ -153,7 +153,7 @@ impl FrameBuffer {
     pub fn get_curr_frame(&self) -> ImageData {
         unsafe {
             if self.curr_frame.is_null() {
-                eprintln!("No frames have been populated, cannot create images from null pointers");
+                println!("No frames have been populated, cannot create images from null pointers");
                 let frame_info = get_frame_info(self.curr_frame); //should probably just give the struct the frame info and extract all the data
                 let frame_data = ImageData::new(
                     frame_info.format,
