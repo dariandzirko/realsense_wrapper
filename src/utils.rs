@@ -34,4 +34,5 @@ pub unsafe fn print_device_info(device: *mut rs2_device) {
             &mut error
         ))
     );
+    rs2_free_error(error);
 }

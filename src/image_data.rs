@@ -4,7 +4,8 @@ use image::{DynamicImage, GrayImage, RgbImage};
 use ndarray::Array2;
 
 use crate::{
-    check_error, format::Rs2Format, rs2_error, rs2_frame, rs2_get_frame_data, BITS_IN_A_BYTE,
+    check_error, format::Rs2Format, rs2_error, rs2_frame, rs2_free_error, rs2_get_frame_data,
+    BITS_IN_A_BYTE,
 };
 
 pub struct BetterRawPixel {
@@ -86,6 +87,7 @@ impl ImageData {
                 self.raw_data[[row, col]] = *slice.get_unchecked(row * self.stride + col);
             }
         }
+        rs2_free_error(error);
     }
 
     pub fn get_better_raw_pixel(&self, row: usize, col: usize) -> BetterRawPixel {

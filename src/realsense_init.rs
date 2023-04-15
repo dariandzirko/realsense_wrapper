@@ -53,6 +53,7 @@ impl RealsenseInstance {
             check_error(error);
 
             rs2_delete_device_list(device_list); //might cause errors if you delete the device_list but keep the device
+            rs2_free_error(error);
 
             RealsenseInstance {
                 context: context,
@@ -90,6 +91,7 @@ impl RealsenseInstance {
             self.pipeline_profile =
                 rs2_pipeline_start_with_config(self.pipeline, self.config, &mut error);
             check_error(error);
+            rs2_free_error(error);
         }
     }
 
@@ -135,6 +137,7 @@ impl FrameBuffer {
                 rs2_release_frame(frame);
             }
             rs2_release_frame(frames);
+            rs2_free_error(error);
         }
     }
 
@@ -192,6 +195,7 @@ impl Drop for RealsenseInstance {
             rs2_delete_pipeline(self.pipeline);
             rs2_delete_device(self.device);
             rs2_delete_context(self.context);
+            rs2_free_error(error);
         }
     }
 }

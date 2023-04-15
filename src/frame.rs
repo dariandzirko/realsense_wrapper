@@ -83,6 +83,8 @@ pub unsafe fn get_frame_info(frame: *mut rs2_frame) -> FrameInfo {
 
     debug_assert_eq!(data_size, width * height * bits_per_pixel / BITS_IN_A_BYTE);
 
+    rs2_free_error(error);
+
     return FrameInfo {
         frame_number,
         frame_timestamp,
