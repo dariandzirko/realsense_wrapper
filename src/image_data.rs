@@ -5,7 +5,7 @@ use ndarray::Array2;
 
 use crate::{
     check_error, format::Rs2Format, rs2_error, rs2_frame, rs2_free_error, rs2_get_frame_data,
-    BITS_IN_A_BYTE,
+    FrameInfo, BITS_IN_A_BYTE,
 };
 
 pub struct BetterRawPixel {
@@ -54,22 +54,30 @@ pub struct ImageData {
     pub stride: usize,
 }
 
+impl Default for ImageData {
+    fn default() -> Self {
+        ImageData {
+            raw_data: Array2::<u8>::zeros((480 as usize, 1920 as usize)),
+            format: Rs2Format::BGR8,
+            width: 640,
+            height: 480,
+            bits_per_pixel: 24,
+            bytes_per_pixel: (24 / BITS_IN_A_BYTE) as usize,
+            stride: 1920,
+        }
+    }
+}
+
 impl ImageData {
-    pub fn new(
-        format: Rs2Format,
-        width: usize,
-        height: usize,
-        bits_per_pixel: usize,
-        stride: usize,
-    ) -> ImageData {
+    pub fn new(frame_info: FrameInfo) -> ImageData {
         Self {
-            raw_data: Array2::<u8>::zeros((height, stride)),
-            format: format,
-            width: width,
-            height: height,
-            bits_per_pixel: bits_per_pixel,
-            bytes_per_pixel: bits_per_pixel / (BITS_IN_A_BYTE as usize),
-            stride: stride,
+            raw_data: Array2::<u8>::zeros((frame_info.height as usize, frame_info.stride as usize)),
+            format: frame_info.format,
+            width: frame_info.width as usize,
+            height: frame_info.height as usize,
+            bits_per_pixel: frame_info.bits_per_pixel as usize,
+            bytes_per_pixel: (frame_info.bits_per_pixel / (BITS_IN_A_BYTE)) as usize,
+            stride: frame_info.stride as usize,
         }
     }
 
@@ -78,7 +86,7 @@ impl ImageData {
 
         let frame_data = rs2_get_frame_data(frame, &mut error);
 
-        if (!frame_data.is_null()) {
+        if !frame_data.is_null() {
             check_error(error);
 
             let slice =
@@ -90,8 +98,8 @@ impl ImageData {
                     self.raw_data[[row, col]] = *slice.get_unchecked(row * self.stride + col);
                 }
             }
-            rs2_free_error(error);
         }
+        rs2_free_error(error);
     }
 
     pub fn get_better_raw_pixel(&self, row: usize, col: usize) -> BetterRawPixel {

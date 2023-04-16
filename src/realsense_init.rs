@@ -15,6 +15,8 @@ unsafe impl Send for RealsenseInstance {}
 pub struct FrameBuffer {
     curr_frame: *mut rs2_frame,
     next_frame: *mut rs2_frame,
+    // curr_data: ImageData,
+    // next_data: ImageData,
 }
 
 unsafe impl Sync for FrameBuffer {}
@@ -104,6 +106,8 @@ impl FrameBuffer {
         FrameBuffer {
             curr_frame: std::ptr::null_mut::<rs2_frame>(),
             next_frame: std::ptr::null_mut::<rs2_frame>(),
+            // curr_data: ImageData::default(),
+            // next_data: ImageData::default(),
         }
     }
 
@@ -132,7 +136,6 @@ impl FrameBuffer {
                 println!("frame is null: {}", frame.is_null());
 
                 check_error(error);
-
                 self.swap_frames(frame);
 
                 rs2_release_frame(frame);
@@ -142,42 +145,39 @@ impl FrameBuffer {
         }
     }
 
-    fn swap_frames(&mut self, curr_frame: *mut rs2_frame) {
-        unsafe {
-            rs2_release_frame(self.next_frame);
-        }
-        self.next_frame = self.curr_frame;
-        self.curr_frame = curr_frame;
-    }
-
     pub fn get_curr_frame(&self) -> ImageData {
         unsafe {
             if self.curr_frame.is_null() {
                 println!("No frames have been populated, cannot create images from null pointers");
-                let frame_info = get_frame_info(self.curr_frame); //should probably just give the struct the frame info and extract all the data
-                let frame_data = ImageData::new(
-                    frame_info.format,
-                    frame_info.width as usize,
-                    frame_info.height as usize,
-                    frame_info.bits_per_pixel as usize,
-                    frame_info.stride as usize,
-                );
+                //let frame_info = get_frame_info(self.curr_frame); //should probably just give the struct the frame info and extract all the data
+                let frame_data = ImageData::new(get_frame_info(self.next_frame));
                 return frame_data;
             }
 
             let frame_info = get_frame_info(self.curr_frame); //should probably just give the struct the frame info and extract all the data
-            let mut frame_data = ImageData::new(
-                frame_info.format,
-                frame_info.width as usize,
-                frame_info.height as usize,
-                frame_info.bits_per_pixel as usize,
-                frame_info.stride as usize,
-            );
+            let mut frame_data = ImageData::new(frame_info);
 
             println!("Copy data from frame = bad?");
             frame_data.copy_data_from_frame(self.curr_frame);
 
             return frame_data;
+        }
+    }
+
+    //This is just some move the buffer up functin to be called after you update curr_frame
+    // fn swap_data(&mut self) {
+    //     self.next_data = self.curr_data.;
+    // }
+
+    //This was wrong when I fed it a bad frame. The next_frame was dropped
+    //and then the curr_frame was invalid
+    fn swap_frames(&mut self, curr_frame: *mut rs2_frame) {
+        if !curr_frame.is_null() {
+            unsafe {
+                rs2_release_frame(self.next_frame);
+            }
+            self.next_frame = self.curr_frame;
+            self.curr_frame = curr_frame;
         }
     }
 }
