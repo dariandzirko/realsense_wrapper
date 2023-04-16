@@ -137,6 +137,7 @@ impl FrameBuffer {
 
                 if !check_error(error) {
                     self.swap_frames(frame);
+                    println!("Error so no swap_frames");
                 }
 
                 rs2_release_frame(frame);
