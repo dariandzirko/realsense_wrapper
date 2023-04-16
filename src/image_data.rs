@@ -74,6 +74,11 @@ impl ImageData {
     }
 
     pub unsafe fn copy_data_from_frame(&mut self, frame: *mut rs2_frame) {
+        println!(
+            "Here copy_data_from_frame frame is null?: {}",
+            frame.is_null()
+        );
+
         let mut error = std::ptr::null_mut::<rs2_error>();
 
         let frame_data = rs2_get_frame_data(frame, &mut error);
