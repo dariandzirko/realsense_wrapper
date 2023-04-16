@@ -4,8 +4,8 @@ use image::{DynamicImage, GrayImage, RgbImage};
 use ndarray::Array2;
 
 use crate::{
-    check_error, format::Rs2Format, rs2_error, rs2_frame, rs2_free_error, rs2_get_frame_data,
-    FrameInfo, BITS_IN_A_BYTE,
+    check_error, format::Rs2Format, pthread_spinlock_t, rs2_error, rs2_frame, rs2_free_error,
+    rs2_get_frame_data, FrameInfo, BITS_IN_A_BYTE,
 };
 
 pub struct BetterRawPixel {
@@ -88,10 +88,12 @@ impl ImageData {
 
         if !frame_data.is_null() {
             if !check_error(error) {
+                println!("Here before slice");
                 let slice =
                     slice::from_raw_parts(frame_data.cast::<u8>(), self.bits_per_pixel as usize);
                 println!("*slice.is_empty() : {}", slice.is_empty());
 
+                println!("Here before slice.get_unchecked");
                 for row in 0..self.height {
                     for col in 0..self.stride {
                         self.raw_data[[row, col]] = *slice.get_unchecked(row * self.stride + col);
