@@ -74,29 +74,24 @@ impl ImageData {
     }
 
     pub unsafe fn copy_data_from_frame(&mut self, frame: *mut rs2_frame) {
-        println!(
-            "Here copy_data_from_frame frame is null?: {}",
-            frame.is_null()
-        );
-
         let mut error = std::ptr::null_mut::<rs2_error>();
 
         let frame_data = rs2_get_frame_data(frame, &mut error);
-        println!(
-            "Here copy_data_from_frame frame_data is null?: {}",
-            frame_data.is_null()
-        );
-        check_error(error);
 
-        let slice = slice::from_raw_parts(frame_data.cast::<u8>(), self.bits_per_pixel as usize);
-        println!("*slice.is_empty() : {}", slice.is_empty());
+        if (!frame_data.is_null()) {
+            check_error(error);
 
-        for row in 0..self.height {
-            for col in 0..self.stride {
-                self.raw_data[[row, col]] = *slice.get_unchecked(row * self.stride + col);
+            let slice =
+                slice::from_raw_parts(frame_data.cast::<u8>(), self.bits_per_pixel as usize);
+            println!("*slice.is_empty() : {}", slice.is_empty());
+
+            for row in 0..self.height {
+                for col in 0..self.stride {
+                    self.raw_data[[row, col]] = *slice.get_unchecked(row * self.stride + col);
+                }
             }
+            rs2_free_error(error);
         }
-        rs2_free_error(error);
     }
 
     pub fn get_better_raw_pixel(&self, row: usize, col: usize) -> BetterRawPixel {
