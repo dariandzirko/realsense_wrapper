@@ -135,8 +135,9 @@ impl FrameBuffer {
                 let frame = rs2_extract_frame(frames, 0, &mut error);
                 println!("frame is null: {}", frame.is_null());
 
-                check_error(error);
-                self.swap_frames(frame);
+                if !check_error(error) {
+                    self.swap_frames(frame);
+                }
 
                 rs2_release_frame(frame);
             }
