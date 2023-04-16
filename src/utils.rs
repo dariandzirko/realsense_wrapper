@@ -1,7 +1,8 @@
 use crate::bindings::*;
 use std::ffi::CStr;
 
-pub unsafe fn check_error(error: *mut rs2_error) {
+//Maybe want this to return an option like everything else
+pub unsafe fn check_error(error: *mut rs2_error) -> bool {
     {
         if let Some(_) = error.as_ref() {
             println!(
@@ -9,7 +10,9 @@ pub unsafe fn check_error(error: *mut rs2_error) {
                 rs2_get_librealsense_exception_type(error),
                 CStr::from_ptr(rs2_get_error_message(error))
             );
+            return true;
         }
+        return false;
     }
 }
 
