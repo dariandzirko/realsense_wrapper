@@ -146,6 +146,7 @@ impl FrameBuffer {
             }
             rs2_release_frame(frames);
             rs2_free_error(error);
+            println!("end of pull frame");
         }
     }
 
