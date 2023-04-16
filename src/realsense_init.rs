@@ -136,6 +136,7 @@ impl FrameBuffer {
                 println!("about to swap frames frame.is_null: {}", frame.is_null());
 
                 if !check_error(error) {
+                    println!("swapping frames");
                     self.swap_frames(frame);
                 } else {
                     println!("Error so no swap_frames");
@@ -174,8 +175,10 @@ impl FrameBuffer {
 
     //This was wrong when I fed it a bad frame. The next_frame was dropped
     //and then the curr_frame was invalid
+    //curr_frame isn't null but I do not think it is valid
     fn swap_frames(&mut self, curr_frame: *mut rs2_frame) {
         if !curr_frame.is_null() {
+            println!("curr_frame should be valid for swap but I am guessing it isn't");
             unsafe {
                 rs2_release_frame(self.next_frame);
             }
