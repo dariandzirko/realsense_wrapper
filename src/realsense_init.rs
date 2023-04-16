@@ -137,6 +137,7 @@ impl FrameBuffer {
 
                 if !check_error(error) {
                     self.swap_frames(frame);
+                } else {
                     println!("Error so no swap_frames");
                 }
 

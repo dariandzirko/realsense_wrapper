@@ -97,6 +97,8 @@ impl ImageData {
                         self.raw_data[[row, col]] = *slice.get_unchecked(row * self.stride + col);
                     }
                 }
+            } else {
+                println!("Error so no copy_data_from_frame");
             }
         }
         rs2_free_error(error);
