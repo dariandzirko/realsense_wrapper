@@ -133,7 +133,7 @@ impl FrameBuffer {
             println!("num_of_frames: {}", num_of_frames);
             for i in 0..num_of_frames {
                 let frame = rs2_extract_frame(frames, 0, &mut error);
-                println!("frame is null: {}", frame.is_null());
+                println!("about to swap frames frame.is_null: {}", frame.is_null());
 
                 if !check_error(error) {
                     self.swap_frames(frame);
