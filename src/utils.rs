@@ -1,19 +1,32 @@
 use crate::bindings::*;
 use std::ffi::CStr;
 
+#[derive(Debug)]
+struct RealsenseError {
+    ty: u32,
+    details: String,
+}
+
+impl RealsenseError {
+    unsafe fn new(error: *mut rs2_error) -> Self {
+        RealsenseError {
+            ty: rs2_get_librealsense_exception_type(error),
+            //I hate this currently
+            details: CStr::from_ptr(rs2_get_error_message(error))
+                .to_str()
+                .unwrap()
+                .to_string(),
+        }
+    }
+}
+
 //Maybe want this to return an option like everything else should be
-pub unsafe fn check_error(error: *mut rs2_error) -> bool {
+pub unsafe fn check_error(error: *mut rs2_error) -> Result<(), RealsenseError> {
     {
         if let Some(_) = error.as_ref() {
-            println!(
-                "Exception type: {} with message {:?}",
-                rs2_get_librealsense_exception_type(error),
-                CStr::from_ptr(rs2_get_error_message(error))
-            );
-            return true;
+            return Err(RealsenseError::new(error));
         }
-        println!("No error");
-        return false;
+        return Ok(());
     }
 }
 
