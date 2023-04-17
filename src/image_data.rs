@@ -87,24 +87,25 @@ impl ImageData {
         let frame_data = rs2_get_frame_data(frame, &mut error);
 
         if !frame_data.is_null() {
-            if !check_error(error) {
-                println!("Here before slice");
-                let slice =
-                    slice::from_raw_parts(frame_data.cast::<u8>(), self.bits_per_pixel as usize);
-                println!("*slice.is_empty() : {}", slice.is_empty());
+            match check_error(error) {
+                Ok(_) => {
+                    let slice = slice::from_raw_parts(
+                        frame_data.cast::<u8>(),
+                        self.bits_per_pixel as usize,
+                    );
 
-                println!("Here before slice.get_unchecked");
-                for row in 0..self.height {
-                    for col in 0..self.stride {
-                        self.raw_data[[row, col]] = *slice.get_unchecked(row * self.stride + col);
+                    for row in 0..self.height {
+                        for col in 0..self.stride {
+                            self.raw_data[[row, col]] =
+                                *slice.get_unchecked(row * self.stride + col);
+                        }
                     }
                 }
-            } else {
-                println!("Error so no copy_data_from_frame");
+                Err(e) => e.print_error(),
             }
+            rs2_free_error(error);
+            drop(frame_data); //Do I even need this? Rust should just drop the pointer
         }
-        rs2_free_error(error);
-        drop(frame_data); //Do I even need this? Rust should just drop the pointer
     }
 
     pub fn get_better_raw_pixel(&self, row: usize, col: usize) -> BetterRawPixel {

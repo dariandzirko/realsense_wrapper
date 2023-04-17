@@ -12,3 +12,5 @@
 # Need to rewrite everything with options? so I can return them on errors. I do not know how often this should happen. Like if I try to poll the realsense faster than 30fps will I just get bad frames? Why is the pointer not null but I cannot extract info from it
 
 # This is a little cursed. I will now try and read the docs, source code and code for the visualizer application to see if they handle any sort frame dropping?
+
+# Options was not what I was looking for lol. I wanted Results so I am rewriting this to take results and handle the Results fro checking the errors

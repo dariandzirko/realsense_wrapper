@@ -2,7 +2,7 @@ use crate::bindings::*;
 use std::ffi::CStr;
 
 #[derive(Debug)]
-struct RealsenseError {
+pub struct RealsenseError {
     ty: u32,
     details: String,
 }
@@ -17,6 +17,13 @@ impl RealsenseError {
                 .unwrap()
                 .to_string(),
         }
+    }
+
+    pub fn print_error(&self) {
+        println!(
+            "After checking the error pointer recieved type: {} with details {}",
+            self.ty, self.details
+        );
     }
 }
 

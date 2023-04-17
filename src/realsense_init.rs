@@ -1,4 +1,6 @@
-use crate::{bindings::*, check_error, get_frame_info, print_device_info, ImageData};
+use crate::{
+    bindings::*, check_error, get_frame_info, print_device_info, ImageData, RealsenseError,
+};
 
 pub struct RealsenseInstance {
     pub context: *mut rs2_context,
@@ -135,11 +137,9 @@ impl FrameBuffer {
                 let frame = rs2_extract_frame(frames, 0, &mut error);
                 println!("about to swap frames frame.is_null: {}", frame.is_null());
 
-                if !check_error(error) {
-                    println!("swapping frames");
-                    self.swap_frames(frame);
-                } else {
-                    println!("Error so no swap_frames");
+                match check_error(error) {
+                    Ok(_) => self.swap_frames(frame),
+                    Err(e) => e.print_error(),
                 }
 
                 rs2_release_frame(frame);
