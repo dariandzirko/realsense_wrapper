@@ -14,3 +14,5 @@
 # This is a little cursed. I will now try and read the docs, source code and code for the visualizer application to see if they handle any sort frame dropping?
 
 # Options was not what I was looking for lol. I wanted Results so I am rewriting this to take results and handle the Results fro checking the errors
+
+# Results are popping off, but we started mid-way down the pipeline leading to issues. Now time to start at the top of the pipeline and get the instance of literal realsense as a nice Result created thing. Time to move all of the example code out of the unsafe block

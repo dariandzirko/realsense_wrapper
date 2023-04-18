@@ -108,40 +108,27 @@ impl FrameBuffer {
         FrameBuffer {
             curr_frame: std::ptr::null_mut::<rs2_frame>(),
             next_frame: std::ptr::null_mut::<rs2_frame>(),
-            // curr_data: ImageData::default(),
-            // next_data: ImageData::default(),
         }
     }
 
-    pub fn pull_frame(&mut self, realsense: &mut RealsenseInstance) {
+    pub fn pull_frame(&mut self, realsense: &mut RealsenseInstance) -> Result<(), RealsenseError> {
         unsafe {
             let mut error = std::ptr::null_mut::<rs2_error>();
 
             let frames =
                 rs2_pipeline_wait_for_frames(realsense.pipeline, RS2_DEFAULT_TIMEOUT, &mut error);
-            check_error(error);
-
-            println!("frames is null: {}", frames.is_null());
-            println!(
-                "realsense.pipeline is null: {}",
-                realsense.pipeline.is_null()
-            );
+            check_error(error)?;
 
             //This num_frame is something worth investigating
             let num_of_frames = rs2_embedded_frames_count(frames, &mut error);
-            check_error(error);
+            check_error(error)?;
 
-            println!("Before rs2_extract_frame");
-            println!("num_of_frames: {}", num_of_frames);
             for i in 0..num_of_frames {
                 let frame = rs2_extract_frame(frames, 0, &mut error);
-                println!("about to swap frames frame.is_null: {}", frame.is_null());
 
-                match check_error(error) {
-                    Ok(_) => self.swap_frames(frame),
-                    Err(e) => e.print_error(),
-                }
+                check_error(error)?;
 
+                self.swap_frames(frame);
                 rs2_release_frame(frame);
             }
             rs2_release_frame(frames);
@@ -150,22 +137,22 @@ impl FrameBuffer {
         }
     }
 
-    pub fn get_curr_frame(&self) -> ImageData {
+    pub fn get_curr_frame(&self) -> Option<ImageData> {
+        //check if the frame_info and frame_data are valid before making ImageData
         unsafe {
-            if self.curr_frame.is_null() {
-                println!("No frames have been populated, cannot create images from null pointers");
-                //let frame_info = get_frame_info(self.curr_frame); //should probably just give the struct the frame info and extract all the data
-                let frame_data = ImageData::new(get_frame_info(self.next_frame));
-                return frame_data;
+            match get_frame_info(self.curr_frame) {
+                Ok(info) => {
+                    return Some(ImageData::new(info, frame_data));
+                    // return Some(ImageData::new(info, frame_data).copy_data_from_frame(self.curr_frame))
+                }
+                Err(_) => match get_frame_info(self.next_frame) {
+                    Ok(info) => {
+                        // return Some(ImageData::new(info).copy_data_from_frame(self.next_frame))
+                        return Some(ImageData::new(info, frame_data));
+                    }
+                    Err(_) => return None,
+                },
             }
-
-            let frame_info = get_frame_info(self.curr_frame); //should probably just give the struct the frame info and extract all the data
-            let mut frame_data = ImageData::new(frame_info);
-
-            println!("Copy data from frame = bad?");
-            frame_data.copy_data_from_frame(self.curr_frame);
-
-            return frame_data;
         }
     }
 
@@ -178,14 +165,11 @@ impl FrameBuffer {
     //and then the curr_frame was invalid
     //curr_frame isn't null but I do not think it is valid
     fn swap_frames(&mut self, curr_frame: *mut rs2_frame) {
-        if !curr_frame.is_null() {
-            println!("curr_frame should be valid for swap but I am guessing it isn't");
-            unsafe {
-                rs2_release_frame(self.next_frame);
-            }
-            self.next_frame = self.curr_frame;
-            self.curr_frame = curr_frame;
+        unsafe {
+            rs2_release_frame(self.next_frame);
         }
+        self.next_frame = self.curr_frame;
+        self.curr_frame = curr_frame;
     }
 }
 

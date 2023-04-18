@@ -19,6 +19,22 @@ fn main() {
 }
 
 fn image_data_example() -> Option<bool> {
+
+    let realsense = Realsense::new(RS2_API_VERSION);
+    realsense.print_device_info();
+    realsense.start_pipeline();
+    
+
+    private realsense.extract_frame();
+    let info = FrameInfo::new(realsense.extract_frame());
+    let data = FrameData::new(realsense.extract_frame());
+
+    realsense.extract_image() {
+        return ImageData::new(info, data);
+    }
+    
+
+
     unsafe {
         let mut error = std::ptr::null_mut::<realsense_wrapper::rs2_error>();
 

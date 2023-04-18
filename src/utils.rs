@@ -1,4 +1,4 @@
-use crate::bindings::*;
+use crate::{bindings::*, ImageData};
 use std::ffi::CStr;
 
 #[derive(Debug)]
@@ -26,6 +26,8 @@ impl RealsenseError {
         );
     }
 }
+
+impl std::error::Error for RealsenseError {}
 
 //Maybe want this to return an option like everything else should be
 pub unsafe fn check_error(error: *mut rs2_error) -> Result<(), RealsenseError> {
