@@ -6,7 +6,6 @@ use num_derive::{FromPrimitive, ToPrimitive};
 #[repr(i32)]
 #[derive(FromPrimitive, ToPrimitive, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum Rs2Format {
-    #[default]
     // #[doc = "< When passed to enable stream, librealsense will try to provide best suited format"]
     Any = rs2_format_RS2_FORMAT_ANY as i32,
     // #[doc = "< 16-bit linear depth values. The depth is meters is equal to depth scale * pixel value."]
@@ -25,6 +24,7 @@ pub enum Rs2Format {
     RGBA8 = rs2_format_RS2_FORMAT_RGBA8 as i32,
     // #[doc = "< 8-bit blue, green, and red channels + constant alpha channel equal to FF"]
     BGRA8 = rs2_format_RS2_FORMAT_BGRA8 as i32,
+    #[default]
     // #[doc = "< 8-bit per-pixel grayscale image"]
     Y8 = rs2_format_RS2_FORMAT_Y8 as i32,
     // #[doc = "< 16-bit per-pixel grayscale image"]
