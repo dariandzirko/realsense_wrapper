@@ -24,9 +24,9 @@ pub enum Rs2Format {
     RGBA8 = rs2_format_RS2_FORMAT_RGBA8 as i32,
     // #[doc = "< 8-bit blue, green, and red channels + constant alpha channel equal to FF"]
     BGRA8 = rs2_format_RS2_FORMAT_BGRA8 as i32,
-    #[default]
     // #[doc = "< 8-bit per-pixel grayscale image"]
     Y8 = rs2_format_RS2_FORMAT_Y8 as i32,
+    #[default]
     // #[doc = "< 16-bit per-pixel grayscale image"]
     Y16 = rs2_format_RS2_FORMAT_Y16 as i32,
     // #[doc = "< Four 10 bits per pixel luminance values packed into a 5-byte macropixel"]
