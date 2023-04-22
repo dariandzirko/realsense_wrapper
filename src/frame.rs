@@ -10,7 +10,7 @@ use std::slice;
 
 pub const BITS_IN_A_BYTE: i32 = 8;
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct FrameInfo {
     frame_number: u64,
     frame_timestamp: f64,
@@ -106,6 +106,16 @@ impl FrameInfo {
             stride,
             data_size,
         });
+    }
+}
+
+impl Default for FrameInfo {
+    fn default() -> Self {
+        FrameInfo {
+            width: 640,
+            height: 480,
+            ..Default::default()
+        }
     }
 }
 
