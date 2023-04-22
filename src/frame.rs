@@ -109,7 +109,7 @@ impl FrameInfo {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct FrameData {
     pub raw_data: Array2<u8>, //this size should be height * stride, where stride is width*bytes per pixel
     pub height: usize,

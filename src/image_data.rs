@@ -37,7 +37,7 @@ impl BetterRawPixel {
     //pub fn from_lumchrom() -> BetterRawPixel {}
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ImageData {
     frame_info: FrameInfo,
     frame_data: FrameData,
