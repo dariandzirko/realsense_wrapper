@@ -109,7 +109,7 @@ impl FrameInfo {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct FrameData {
     pub raw_data: Array2<u8>, //this size should be height * stride, where stride is width*bytes per pixel
     pub height: usize,
@@ -144,5 +144,15 @@ impl FrameData {
             height: height,
             stride: stride,
         });
+    }
+}
+
+impl Default for FrameData {
+    fn default() -> Self {
+        FrameData {
+            raw_data: Array2::<u8>::zeros((480, 640)),
+            height: 480,
+            stride: 640,
+        }
     }
 }
