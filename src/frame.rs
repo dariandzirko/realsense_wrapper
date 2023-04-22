@@ -49,7 +49,6 @@ impl FrameInfo {
             rs2_frame_metadata_value_RS2_FRAME_METADATA_TIME_OF_ARRIVAL,
             &mut error,
         );
-        println!("damn is this right before the fire nation attacks");
         check_error(error)?;
 
         let profile = rs2_get_frame_stream_profile(frame, &mut error);
