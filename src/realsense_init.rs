@@ -1,4 +1,4 @@
-use image::Frame;
+use std::collections::{self, VecDeque};
 
 use crate::{
     bindings::*, check_error, print_device_info, FrameData, FrameInfo, ImageData, RealsenseError,
@@ -17,8 +17,7 @@ unsafe impl Sync for RealsenseInstance {}
 unsafe impl Send for RealsenseInstance {}
 
 pub struct FrameBuffer {
-    curr_frame: *mut rs2_frame,
-    next_frame: *mut rs2_frame,
+    queue: collections::VecDeque<*mut rs2_frame>,
     // next_frame: ImageData,
 }
 
@@ -107,8 +106,9 @@ impl FrameBuffer {
     //please don't call get_curr_frame before calling stream_frames
     pub fn new() -> Self {
         FrameBuffer {
-            curr_frame: std::ptr::null_mut::<rs2_frame>(),
-            next_frame: std::ptr::null_mut::<rs2_frame>(),
+            queue: VecDeque::new(),
+            // curr_frame: std::ptr::null_mut::<rs2_frame>(),
+            // next_frame: std::ptr::null_mut::<rs2_frame>(),
         }
     }
 
