@@ -129,19 +129,20 @@ impl ImageData {
         return result;
     }
 
-    pub fn to_image(&self) -> DynamicImage {
+    pub fn to_image(&self) -> Option<DynamicImage> {
         match self.frame_info.format {
-            Rs2Format::RGB8 => return image::DynamicImage::ImageRgb8(self.to_rgb_image()),
+            Rs2Format::RGB8 => return Some(image::DynamicImage::ImageRgb8(self.to_rgb_image())),
 
-            Rs2Format::Y16 => return image::DynamicImage::ImageLuma8(self.to_luma_image()),
+            Rs2Format::Y16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
-            Rs2Format::Z16 => return image::DynamicImage::ImageLuma8(self.to_luma_image()),
+            Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
             _ => {
-                unimplemented!(
+                println!(
                     "I have not worked on this format yet format: {:?}",
                     self.frame_info.format
                 );
+                return None;
             }
         }
     }
