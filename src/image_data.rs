@@ -1,12 +1,7 @@
-use std::{error::Error, slice};
-
 use image::{DynamicImage, GrayImage, RgbImage};
 use ndarray::Array2;
 
-use crate::{
-    check_error, format::Rs2Format, pthread_spinlock_t, rs2_error, rs2_frame, rs2_free_error,
-    rs2_get_frame_data, FrameData, FrameInfo, RealsenseError, BITS_IN_A_BYTE,
-};
+use crate::{format::Rs2Format, FrameData, FrameInfo, BITS_IN_A_BYTE};
 
 pub struct BetterRawPixel {
     k: u8,
@@ -28,7 +23,6 @@ impl BetterRawPixel {
     }
 
     //pub fn from_ka() -> BetterRawPixel {}
-
     pub fn from_rgb(r: u8, g: u8, b: u8) -> BetterRawPixel {
         BetterRawPixel {
             k: (r + g + b) / 3,
@@ -58,12 +52,15 @@ impl ImageData {
     }
 
     pub fn get_better_raw_pixel(&self, row: usize, col: usize) -> BetterRawPixel {
-        match self.format {
+        match self.frame_info.format {
             Rs2Format::RGB8 => {
                 return BetterRawPixel::from_rgb(
-                    self.frame_data.raw_data[[row, col * self.bytes_per_pixel]],
-                    self.frame_data.raw_data[[row, col * self.bytes_per_pixel + 1]],
-                    self.frame_data.raw_data[[row, col * self.bytes_per_pixel + 2]],
+                    self.frame_data.raw_data
+                        [[row, col * (self.frame_info.bits_per_pixel as usize)]],
+                    self.frame_data.raw_data
+                        [[row, col * (self.frame_info.bits_per_pixel + 1) as usize]],
+                    self.frame_data.raw_data
+                        [[row, col * (self.frame_info.bits_per_pixel + 2) as usize]],
                 );
             }
 
@@ -109,7 +106,7 @@ impl ImageData {
     }
 
     pub fn to_rgb_image(&self) -> RgbImage {
-        let mut result = RgbImage::new(self.width as u32, self.height as u32);
+        let mut result = RgbImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
 
         //This is wrong because the iterator will be over the bytes but I need to do every 4 bytes here because stride
         //Use better raw pixel
@@ -133,7 +130,7 @@ impl ImageData {
     }
 
     pub fn to_image(&self) -> DynamicImage {
-        match self.format {
+        match self.frame_info.format {
             Rs2Format::RGB8 => return image::DynamicImage::ImageRgb8(self.to_rgb_image()),
 
             Rs2Format::Y16 => return image::DynamicImage::ImageLuma8(self.to_luma_image()),

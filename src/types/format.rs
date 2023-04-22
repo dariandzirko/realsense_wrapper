@@ -1,9 +1,12 @@
+use std::default;
+
 use crate::bindings::*;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 #[repr(i32)]
-#[derive(FromPrimitive, ToPrimitive, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(FromPrimitive, ToPrimitive, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum Rs2Format {
+    #[default]
     // #[doc = "< When passed to enable stream, librealsense will try to provide best suited format"]
     Any = rs2_format_RS2_FORMAT_ANY as i32,
     // #[doc = "< 16-bit linear depth values. The depth is meters is equal to depth scale * pixel value."]

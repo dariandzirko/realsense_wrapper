@@ -1,5 +1,5 @@
 use crate::{bindings::*, ImageData};
-use std::ffi::CStr;
+use std::{ffi::CStr, fmt};
 
 #[derive(Debug)]
 pub struct RealsenseError {
@@ -18,12 +18,15 @@ impl RealsenseError {
                 .to_string(),
         }
     }
+}
 
-    pub fn print_error(&self) {
-        println!(
+impl fmt::Display for RealsenseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
             "After checking the error pointer recieved type: {} with details {}",
             self.ty, self.details
-        );
+        )
     }
 }
 

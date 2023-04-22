@@ -10,6 +10,7 @@ use std::slice;
 
 pub const BITS_IN_A_BYTE: i32 = 8;
 
+#[derive(Default, Debug)]
 pub struct FrameInfo {
     frame_number: u64,
     frame_timestamp: f64,
@@ -27,6 +28,7 @@ pub struct FrameInfo {
 }
 
 impl FrameInfo {
+    //move unsafe
     pub unsafe fn new(frame: *mut rs2_frame) -> Result<FrameInfo, RealsenseError> {
         let mut error = std::ptr::null_mut::<rs2_error>();
 
@@ -108,6 +110,7 @@ impl FrameInfo {
     }
 }
 
+#[derive(Debug)]
 pub struct FrameData {
     pub raw_data: Array2<u8>, //this size should be height * stride, where stride is width*bytes per pixel
     pub height: usize,
@@ -128,7 +131,7 @@ impl FrameData {
         check_error(error)?;
 
         let slice = slice::from_raw_parts(frame_data.cast::<u8>(), bits_per_pixel);
-        let raw_data = Array2::<u8>::zeros((height, stride));
+        let mut raw_data = Array2::<u8>::zeros((height, stride));
 
         for row in 0..height {
             for col in 0..stride {
@@ -138,7 +141,7 @@ impl FrameData {
         rs2_free_error(error);
         drop(frame_data); //Do I even need this? Rust should just drop the pointer
         return Ok(FrameData {
-            raw_data: &raw_data,
+            raw_data: raw_data,
             height: height,
             stride: stride,
         });

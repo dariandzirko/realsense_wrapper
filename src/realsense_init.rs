@@ -1,5 +1,7 @@
+use image::Frame;
+
 use crate::{
-    bindings::*, check_error, get_frame_info, print_device_info, ImageData, RealsenseError,
+    bindings::*, check_error, print_device_info, FrameData, FrameInfo, ImageData, RealsenseError,
 };
 
 pub struct RealsenseInstance {
@@ -17,8 +19,7 @@ unsafe impl Send for RealsenseInstance {}
 pub struct FrameBuffer {
     curr_frame: *mut rs2_frame,
     next_frame: *mut rs2_frame,
-    // curr_data: ImageData,
-    // next_data: ImageData,
+    // next_frame: ImageData,
 }
 
 unsafe impl Sync for FrameBuffer {}
@@ -133,33 +134,40 @@ impl FrameBuffer {
             }
             rs2_release_frame(frames);
             rs2_free_error(error);
-            println!("end of pull frame");
+            return Ok(());
         }
     }
 
     pub fn get_curr_frame(&self) -> Option<ImageData> {
         //check if the frame_info and frame_data are valid before making ImageData
         unsafe {
-            match get_frame_info(self.curr_frame) {
-                Ok(info) => {
-                    return Some(ImageData::new(info, frame_data));
-                    // return Some(ImageData::new(info, frame_data).copy_data_from_frame(self.curr_frame))
+            let mut frame_info = FrameInfo::default();
+
+            let (curr, next) = (
+                FrameInfo::new(self.curr_frame),
+                FrameInfo::new(self.next_frame),
+            );
+            if let Ok(current) = curr {
+                frame_info = current;
+            } else if let Ok(nexter) = next {
+                frame_info = nexter;
+            } else {
+                return None;
+            }
+
+            match FrameData::new(
+                self.curr_frame,
+                frame_info.height as usize,
+                frame_info.stride as usize,
+                frame_info.bits_per_pixel as usize,
+            ) {
+                Ok(data) => {
+                    return Some(ImageData::new(frame_info, data));
                 }
-                Err(_) => match get_frame_info(self.next_frame) {
-                    Ok(info) => {
-                        // return Some(ImageData::new(info).copy_data_from_frame(self.next_frame))
-                        return Some(ImageData::new(info, frame_data));
-                    }
-                    Err(_) => return None,
-                },
+                Err(_) => return None,
             }
         }
     }
-
-    //This is just some move the buffer up functin to be called after you update curr_frame
-    // fn swap_data(&mut self) {
-    //     self.next_data = self.curr_data.;
-    // }
 
     //This was wrong when I fed it a bad frame. The next_frame was dropped
     //and then the curr_frame was invalid
