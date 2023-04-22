@@ -138,7 +138,10 @@ impl ImageData {
             Rs2Format::Z16 => return image::DynamicImage::ImageLuma8(self.to_luma_image()),
 
             _ => {
-                unimplemented!("I have not worked on this format yet");
+                unimplemented!(
+                    "I have not worked on this format yet format: {:?}",
+                    self.frame_info.format
+                );
             }
         }
     }
