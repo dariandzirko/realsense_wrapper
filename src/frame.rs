@@ -1,7 +1,6 @@
 use crate::bindings::*;
 use crate::types::format::Rs2Format;
 use crate::utils::*;
-use image::*;
 use ndarray::Array2;
 use num_traits::FromPrimitive;
 use std::ffi::CStr;
@@ -9,6 +8,18 @@ use std::mem::MaybeUninit;
 use std::slice;
 
 pub const BITS_IN_A_BYTE: i32 = 8;
+
+pub struct SafeFrame {
+    pub frame: *mut rs2_frame,
+}
+
+impl Drop for SafeFrame {
+    fn drop(&mut self) {
+        unsafe {
+            rs2_release_frame(self.frame);
+        }
+    }
+}
 
 #[derive(Default, Debug)]
 pub struct FrameInfo {
@@ -29,29 +40,29 @@ pub struct FrameInfo {
 
 impl FrameInfo {
     //move unsafe
-    pub unsafe fn new(frame: *mut rs2_frame) -> Result<FrameInfo, RealsenseError> {
+    pub unsafe fn new(frame: &SafeFrame) -> Result<FrameInfo, RealsenseError> {
         let mut error = std::ptr::null_mut::<rs2_error>();
 
-        let frame_number = rs2_get_frame_number(frame, &mut error);
+        let frame_number = rs2_get_frame_number(frame.frame, &mut error);
         check_error(error)?;
 
-        let frame_timestamp = rs2_get_frame_timestamp(frame, &mut error);
+        let frame_timestamp = rs2_get_frame_timestamp(frame.frame, &mut error);
         check_error(error)?;
 
-        let frame_timestamp_domain = rs2_get_frame_timestamp_domain(frame, &mut error);
+        let frame_timestamp_domain = rs2_get_frame_timestamp_domain(frame.frame, &mut error);
         check_error(error)?;
 
         let frame_timestamp_domain_str =
             CStr::from_ptr(rs2_timestamp_domain_to_string(frame_timestamp_domain));
 
         let frame_metadata_time_of_arrival = rs2_get_frame_metadata(
-            frame,
+            frame.frame,
             rs2_frame_metadata_value_RS2_FRAME_METADATA_TIME_OF_ARRIVAL,
             &mut error,
         );
         check_error(error)?;
 
-        let profile = rs2_get_frame_stream_profile(frame, &mut error);
+        let profile = rs2_get_frame_stream_profile(frame.frame, &mut error);
 
         //This has high potential to be a source of error
         let mut stream = MaybeUninit::uninit();
@@ -71,19 +82,19 @@ impl FrameInfo {
         );
         check_error(error)?;
 
-        let width = rs2_get_frame_width(frame, &mut error);
+        let width = rs2_get_frame_width(frame.frame, &mut error);
         check_error(error)?;
 
-        let height = rs2_get_frame_height(frame, &mut error);
+        let height = rs2_get_frame_height(frame.frame, &mut error);
         check_error(error)?;
 
-        let bits_per_pixel = rs2_get_frame_bits_per_pixel(frame, &mut error);
+        let bits_per_pixel = rs2_get_frame_bits_per_pixel(frame.frame, &mut error);
         check_error(error)?;
 
-        let stride = rs2_get_frame_stride_in_bytes(frame, &mut error);
+        let stride = rs2_get_frame_stride_in_bytes(frame.frame, &mut error);
         check_error(error)?;
 
-        let data_size = rs2_get_frame_data_size(frame, &mut error);
+        let data_size = rs2_get_frame_data_size(frame.frame, &mut error);
         check_error(error)?;
 
         debug_assert_eq!(data_size, width * height * bits_per_pixel / BITS_IN_A_BYTE);
@@ -118,14 +129,14 @@ pub struct FrameData {
 
 impl FrameData {
     pub unsafe fn new(
-        frame: *mut rs2_frame,
+        frame: &SafeFrame,
         height: usize,
         stride: usize,
         bits_per_pixel: usize,
     ) -> Result<FrameData, RealsenseError> {
         let mut error = std::ptr::null_mut::<rs2_error>();
 
-        let frame_data = rs2_get_frame_data(frame, &mut error);
+        let frame_data = rs2_get_frame_data(frame.frame, &mut error);
 
         check_error(error)?;
 

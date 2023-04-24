@@ -2,6 +2,7 @@ use std::collections::{self, VecDeque};
 
 use crate::{
     bindings::*, check_error, print_device_info, FrameData, FrameInfo, ImageData, RealsenseError,
+    SafeFrame,
 };
 
 pub struct RealsenseInstance {
@@ -17,7 +18,7 @@ unsafe impl Sync for RealsenseInstance {}
 unsafe impl Send for RealsenseInstance {}
 
 pub struct FrameBuffer {
-    queue: collections::VecDeque<*mut rs2_frame>,
+    queue: collections::VecDeque<SafeFrame>,
     // next_frame: ImageData,
 }
 
@@ -107,8 +108,6 @@ impl FrameBuffer {
     pub fn new() -> Self {
         FrameBuffer {
             queue: VecDeque::new(),
-            // curr_frame: std::ptr::null_mut::<rs2_frame>(),
-            // next_frame: std::ptr::null_mut::<rs2_frame>(),
         }
     }
 
@@ -129,7 +128,6 @@ impl FrameBuffer {
 
                 check_error(error)?;
 
-                self.swap_frames(frame);
                 rs2_release_frame(frame);
             }
             rs2_release_frame(frames);
@@ -138,46 +136,32 @@ impl FrameBuffer {
         }
     }
 
-    pub fn get_curr_frame(&self) -> Option<ImageData> {
+    pub fn get_curr_frame(&mut self) -> Option<ImageData> {
         //check if the frame_info and frame_data are valid before making ImageData
         unsafe {
             let mut frame_info = FrameInfo::default();
 
-            let (curr, next) = (
-                FrameInfo::new(self.curr_frame),
-                FrameInfo::new(self.next_frame),
-            );
-            if let Ok(current) = curr {
-                frame_info = current;
-            } else if let Ok(nexter) = next {
-                frame_info = nexter;
+            if let Some(front) = self.queue.pop_front() {
+                if let Ok(current) = FrameInfo::new(&front) {
+                    frame_info = current;
+                } else {
+                    return None;
+                }
+
+                if let Ok(data) = FrameData::new(
+                    &front,
+                    frame_info.height as usize,
+                    frame_info.stride as usize,
+                    frame_info.bits_per_pixel as usize,
+                ) {
+                    return Some(ImageData::new(frame_info, data));
+                } else {
+                    return None;
+                }
             } else {
                 return None;
             }
-
-            match FrameData::new(
-                self.curr_frame,
-                frame_info.height as usize,
-                frame_info.stride as usize,
-                frame_info.bits_per_pixel as usize,
-            ) {
-                Ok(data) => {
-                    return Some(ImageData::new(frame_info, data));
-                }
-                Err(_) => return None,
-            }
         }
-    }
-
-    //This was wrong when I fed it a bad frame. The next_frame was dropped
-    //and then the curr_frame was invalid
-    //curr_frame isn't null but I do not think it is valid
-    fn swap_frames(&mut self, curr_frame: *mut rs2_frame) {
-        unsafe {
-            rs2_release_frame(self.next_frame);
-        }
-        self.next_frame = self.curr_frame;
-        self.curr_frame = curr_frame;
     }
 }
 
@@ -196,16 +180,6 @@ impl Drop for RealsenseInstance {
             rs2_delete_device(self.device);
             rs2_delete_context(self.context);
             rs2_free_error(error);
-        }
-    }
-}
-
-impl Drop for FrameBuffer {
-    fn drop(&mut self) {
-        unsafe {
-            println!("Drop for FrameBuffer");
-            rs2_release_frame(self.curr_frame);
-            rs2_release_frame(self.next_frame);
         }
     }
 }
