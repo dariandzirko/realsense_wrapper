@@ -111,7 +111,10 @@ impl FrameBuffer {
         }
     }
 
-    pub fn pull_frame(&mut self, realsense: &mut RealsenseInstance) -> Result<(), RealsenseError> {
+    pub fn populate_queue(
+        &mut self,
+        realsense: &mut RealsenseInstance,
+    ) -> Result<(), RealsenseError> {
         unsafe {
             let mut error = std::ptr::null_mut::<rs2_error>();
 
@@ -128,7 +131,7 @@ impl FrameBuffer {
 
                 check_error(error)?;
 
-                rs2_release_frame(frame);
+                self.queue.push_back(SafeFrame { frame });
             }
             rs2_release_frame(frames);
             rs2_free_error(error);
