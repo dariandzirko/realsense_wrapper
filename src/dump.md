@@ -18,3 +18,5 @@
 # Results are popping off, but we started mid-way down the pipeline leading to issues. Now time to start at the top of the pipeline and get the instance of literal realsense as a nice Result created thing. Time to move all of the example code out of the unsafe block. Wow this is a lot of mental visualization and energy to get this to a point that I would want.
 
 # Okay so the current commit-2 is working pretty well, and it did not does crash but it just updates super slowly. Current idea is now make a big queue and hopefully update side by side so it's not super duper slow
+
+# Now I potentially fixed the framerate and resolution but the system in bevy will only run/work when I consistently give it inputs to the system, causing the update system to only trigger on events ie spacebar, mouse movement or clicks

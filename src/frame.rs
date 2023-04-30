@@ -107,7 +107,6 @@ impl FrameInfo {
             frame_timestamp_domain,
             frame_metadata_time_of_arrival,
             format: Rs2Format::from_i32(format.assume_init() as i32).unwrap(),
-            //Leading to this having high potential for being a source of error
             index: index.assume_init(),
             unique_id: unique_id.assume_init(),
             frame_rate: frame_rate.assume_init(),

@@ -171,8 +171,6 @@ impl FrameBuffer {
 impl Drop for RealsenseInstance {
     fn drop(&mut self) {
         unsafe {
-            println!("Drop for RealsenseInstance");
-
             let mut error = std::ptr::null_mut::<rs2_error>();
 
             rs2_pipeline_stop(self.pipeline, &mut error);
