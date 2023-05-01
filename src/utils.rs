@@ -11,7 +11,6 @@ impl RealsenseError {
     unsafe fn new(error: *mut rs2_error) -> Self {
         RealsenseError {
             ty: rs2_get_librealsense_exception_type(error),
-            //I hate this currently
             details: CStr::from_ptr(rs2_get_error_message(error))
                 .to_str()
                 .unwrap()
