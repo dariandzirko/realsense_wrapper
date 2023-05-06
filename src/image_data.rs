@@ -94,12 +94,20 @@ impl ImageData {
         let mut result =
             GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
 
+<<<<<<< HEAD
+=======
+        println!("result dimension: {:?}", result.dimensions());
+
+        println!("frame_data shape: {:?}", self.frame_data.raw_data.shape());
+
+>>>>>>> parent of 5ad4501 (Removed all silly print statements so I can debug easier)
         //Wtf is this use better raw pixel
         self.frame_data
             .raw_data
             .indexed_iter()
             .step_by(2)
             .for_each(|((row, col), data)| {
+<<<<<<< HEAD
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
@@ -133,6 +141,8 @@ impl ImageData {
                     self.frame_data.raw_data[[row, col + 1]]
                 );
 >>>>>>> parent of 3cd3d5a (Removed print statements)
+=======
+>>>>>>> parent of 5ad4501 (Removed all silly print statements so I can debug easier)
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
