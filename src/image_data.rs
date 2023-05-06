@@ -105,11 +105,10 @@ impl ImageData {
             .step_by(2)
             .for_each(|((row, col), data)| {
                 let temp_data = *data as u16 / u16::MAX * u8::MAX as u16;
-                println!("pixel_value: {}", (temp_data | 0x0ff));
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
-                    image::Luma::<u8>([(temp_data | 0x0ff) as u8]),
+                    image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
                 )
             });
 
