@@ -142,29 +142,30 @@ impl FrameBuffer {
 
     pub fn get_curr_frame(&mut self) -> Option<ImageData> {
         //check if the frame_info and frame_data are valid before making ImageData
-        unsafe {
-            let mut frame_info = FrameInfo::default();
 
-            if let Some(front) = self.queue.pop_front() {
-                if let Ok(current) = FrameInfo::new(&front) {
-                    frame_info = current;
-                } else {
-                    return None;
-                }
+        let mut frame_info = FrameInfo::default();
 
-                if let Ok(data) = FrameData::new(
-                    &front,
-                    frame_info.height as usize,
-                    frame_info.stride as usize,
-                    frame_info.bits_per_pixel as usize,
-                ) {
-                    return Some(ImageData::new(frame_info, data));
-                } else {
-                    return None;
-                }
+        if let Some(front) = self.queue.pop_front() {
+            if let Ok(current) = FrameInfo::new(&front) {
+                frame_info = current;
             } else {
                 return None;
             }
+
+            println!("get_curr_frame frame_info format :{:?}", frame_info.format);
+
+            if let Ok(data) = FrameData::new(
+                &front,
+                frame_info.height as usize,
+                frame_info.stride as usize,
+                frame_info.bits_per_pixel as usize,
+            ) {
+                return Some(ImageData::new(frame_info, data));
+            } else {
+                return None;
+            }
+        } else {
+            return None;
         }
     }
 }
