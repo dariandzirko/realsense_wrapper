@@ -94,10 +94,6 @@ impl ImageData {
         let mut result =
             GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
 
-        println!("result dimension: {:?}", result.dimensions());
-
-        println!("frame_data shape: {:?}", self.frame_data.raw_data.shape());
-
         //Wtf is this use better raw pixel
         self.frame_data
             .raw_data
@@ -119,7 +115,6 @@ impl ImageData {
         let mut result =
             GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
 
-        println!("frame_info.stride: {}", self.frame_info.stride);
         //Wtf is this use better raw pixel
         self.frame_data
             .raw_data
