@@ -110,6 +110,31 @@ impl ImageData {
         return result;
     }
 
+    pub fn to_depth_image(&self) -> GrayImage {
+        let mut result =
+            GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
+        //Wtf is this use better raw pixel
+        self.frame_data
+            .raw_data
+            .indexed_iter()
+            .step_by(2)
+            .for_each(|((row, col), data)| {
+                let mut temp_data =
+                    ((*data as u16) << 8) | (self.frame_data.raw_data[[row, col + 1]] as u16);
+
+                temp_data = (temp_data / u16::MAX) * (u8::MAX as u16);
+
+                result.put_pixel(
+                    (col / 2) as u32,
+                    row as u32,
+                    image::Luma::<u8>([temp_data as u8]),
+                    // image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
+                )
+            });
+
+        return result;
+    }
+
     pub fn to_rgb_image(&self) -> RgbImage {
         let mut result = RgbImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
 
@@ -140,7 +165,8 @@ impl ImageData {
 
             Rs2Format::Y16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
-            Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
+            //This should be a Luma16 but idk how to do that with this crate
+            Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_depth_image())),
 
             _ => {
                 return None;
