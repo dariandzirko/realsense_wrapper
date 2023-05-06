@@ -121,10 +121,18 @@ impl ImageData {
             .indexed_iter()
             .step_by(2)
             .for_each(|((row, col), data)| {
+<<<<<<< HEAD
                 // let mut temp_data =
                 //     ((*data as u16) << 8) | (self.frame_data.raw_data[[row, col + 1]] as u16);
 
                 // temp_data = (temp_data / u16::MAX) * (u8::MAX as u16);
+=======
+                println!("*data: {}", *data);
+                println!(
+                    "self.frame_data.raw_data[[row, col + 1]]: {}",
+                    self.frame_data.raw_data[[row, col + 1]]
+                );
+>>>>>>> parent of 3cd3d5a (Removed print statements)
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
