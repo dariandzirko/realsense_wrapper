@@ -1,8 +1,8 @@
 use std::collections::{self, VecDeque};
 
 use crate::{
-    bindings::*, check_error, print_device_info, FrameData, FrameInfo, ImageData, RealsenseError,
-    SafeFrame,
+    bindings::*, check_error, format::Rs2Format, print_device_info, stream::Rs2StreamKind,
+    FrameData, FrameInfo, ImageData, RealsenseError, SafeFrame,
 };
 
 pub struct RealsenseInstance {
@@ -76,19 +76,20 @@ impl RealsenseInstance {
         width: i32,
         height: i32,
         fps: i32,
-        stream: rs2_stream, //rs2_stream_RS2_STREAM_COLOR//
-        format: rs2_format, //rs2_format_RS2_FORMAT_RGB8//
+        stream: Rs2StreamKind, //rs2_stream_RS2_STREAM_COLOR//
+        format: Rs2Format,     //rs2_format_RS2_FORMAT_RGB8//
     ) {
         unsafe {
             let mut error = std::ptr::null_mut::<rs2_error>();
 
+            // This should be cool? I hope rust analyzer isn't lying to me
             rs2_config_enable_stream(
                 self.config,
-                stream,
+                stream as u32,
                 stream_index,
                 width,
                 height,
-                format,
+                format as u32,
                 fps,
                 &mut error,
             );
@@ -141,29 +142,30 @@ impl FrameBuffer {
 
     pub fn get_curr_frame(&mut self) -> Option<ImageData> {
         //check if the frame_info and frame_data are valid before making ImageData
-        unsafe {
-            let mut frame_info = FrameInfo::default();
 
-            if let Some(front) = self.queue.pop_front() {
-                if let Ok(current) = FrameInfo::new(&front) {
-                    frame_info = current;
-                } else {
-                    return None;
-                }
+        let mut frame_info = FrameInfo::default();
 
-                if let Ok(data) = FrameData::new(
-                    &front,
-                    frame_info.height as usize,
-                    frame_info.stride as usize,
-                    frame_info.bits_per_pixel as usize,
-                ) {
-                    return Some(ImageData::new(frame_info, data));
-                } else {
-                    return None;
-                }
+        if let Some(front) = self.queue.pop_front() {
+            if let Ok(current) = FrameInfo::new(&front) {
+                frame_info = current;
             } else {
                 return None;
             }
+
+            println!("get_curr_frame frame_info format :{:?}", frame_info.format);
+
+            if let Ok(data) = FrameData::new(
+                &front,
+                frame_info.height as usize,
+                frame_info.stride as usize,
+                frame_info.bits_per_pixel as usize,
+            ) {
+                return Some(ImageData::new(frame_info, data));
+            } else {
+                return None;
+            }
+        } else {
+            return None;
         }
     }
 }
