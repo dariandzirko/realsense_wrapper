@@ -93,56 +93,12 @@ impl ImageData {
     pub fn to_luma_image(&self) -> GrayImage {
         let mut result =
             GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
-
-<<<<<<< HEAD
-=======
-        println!("result dimension: {:?}", result.dimensions());
-
-        println!("frame_data shape: {:?}", self.frame_data.raw_data.shape());
-
->>>>>>> parent of 5ad4501 (Removed all silly print statements so I can debug easier)
         //Wtf is this use better raw pixel
         self.frame_data
             .raw_data
             .indexed_iter()
             .step_by(2)
-            .for_each(|((row, col), data)| {
-<<<<<<< HEAD
-                result.put_pixel(
-                    (col / 2) as u32,
-                    row as u32,
-                    image::Luma::<u8>([self.frame_data.raw_data[[row, col + 1]]]),
-                    // image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
-                )
-            });
-
-        return result;
-    }
-
-    pub fn to_depth_image(&self) -> GrayImage {
-        let mut result =
-            GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
-
-        //Wtf is this use better raw pixel
-        self.frame_data
-            .raw_data
-            .indexed_iter()
-            .step_by(2)
-            .for_each(|((row, col), data)| {
-<<<<<<< HEAD
-                // let mut temp_data =
-                //     ((*data as u16) << 8) | (self.frame_data.raw_data[[row, col + 1]] as u16);
-
-                // temp_data = (temp_data / u16::MAX) * (u8::MAX as u16);
-=======
-                println!("*data: {}", *data);
-                println!(
-                    "self.frame_data.raw_data[[row, col + 1]]: {}",
-                    self.frame_data.raw_data[[row, col + 1]]
-                );
->>>>>>> parent of 3cd3d5a (Removed print statements)
-=======
->>>>>>> parent of 5ad4501 (Removed all silly print statements so I can debug easier)
+            .for_each(|((row, col), _data)| {
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
@@ -184,15 +140,9 @@ impl ImageData {
 
             Rs2Format::Y16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
-            //This should be a Luma16 but idk how to do that with this crate
-            // Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_depth_image())),
             Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
             _ => {
-                println!(
-                    "I have not worked on this format yet format: {:?}",
-                    self.frame_info.format
-                );
                 return None;
             }
         }
