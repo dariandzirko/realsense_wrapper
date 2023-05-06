@@ -152,6 +152,8 @@ impl FrameBuffer {
                 return None;
             }
 
+            println!("get_curr_frame frame_info format :{:?}", frame_info.format);
+
             if let Ok(data) = FrameData::new(
                 &front,
                 frame_info.height as usize,
