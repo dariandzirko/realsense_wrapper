@@ -113,24 +113,18 @@ impl ImageData {
     pub fn to_depth_image(&self) -> GrayImage {
         let mut result =
             GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
+
+        println!("frame_info.stride: {}", self.frame_info.stride);
         //Wtf is this use better raw pixel
         self.frame_data
             .raw_data
             .indexed_iter()
             .step_by(2)
             .for_each(|((row, col), data)| {
-                println!("data: {}", *data);
-                println!(
-                    "(self.frame_data.raw_data[[row, col + 1]]: {}",
-                    (self.frame_data.raw_data[[row, col + 1]])
-                );
-
                 let mut temp_data =
                     ((*data as u16) << 8) | (self.frame_data.raw_data[[row, col + 1]] as u16);
 
                 temp_data = (temp_data / u16::MAX) * (u8::MAX as u16);
-                println!("temp_data : {}", temp_data);
-                println!("temp_data as u8 : {}", temp_data as u8);
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
