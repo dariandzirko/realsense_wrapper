@@ -104,8 +104,6 @@ impl ImageData {
             .indexed_iter()
             .step_by(2)
             .for_each(|((row, col), data)| {
-                let temp_data = *data as u16 / u16::MAX * u8::MAX as u16;
-                println!("temp_data: {}", (temp_data & 0x0ff));
                 println!("*data: {}", *data);
                 println!(
                     "self.frame_data.raw_data[[row, col + 1]]: {}",
