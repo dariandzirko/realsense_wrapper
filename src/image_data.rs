@@ -107,10 +107,14 @@ impl ImageData {
                 let temp_data = *data as u16 / u16::MAX * u8::MAX as u16;
                 println!("temp_data: {}", (temp_data & 0x0ff));
                 println!("*data: {}", *data);
+                println!(
+                    "self.frame_data.raw_data[[row, col + 1]]: {}",
+                    self.frame_data.raw_data[[row, col + 1]]
+                );
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
-                    image::Luma::<u8>([*data]),
+                    image::Luma::<u8>([self.frame_data.raw_data[[row, col + 1]]]),
                     // image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
                 )
             });
