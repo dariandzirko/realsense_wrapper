@@ -121,14 +121,14 @@ impl ImageData {
             .indexed_iter()
             .step_by(2)
             .for_each(|((row, col), data)| {
-                let mut temp_data =
-                    ((*data as u16) << 8) | (self.frame_data.raw_data[[row, col + 1]] as u16);
+                // let mut temp_data =
+                //     ((*data as u16) << 8) | (self.frame_data.raw_data[[row, col + 1]] as u16);
 
-                temp_data = (temp_data / u16::MAX) * (u8::MAX as u16);
+                // temp_data = (temp_data / u16::MAX) * (u8::MAX as u16);
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
-                    image::Luma::<u8>([self.frame_data.raw_data[[row, col]]]),
+                    image::Luma::<u8>([self.frame_data.raw_data[[row, col + 1]]]),
                     // image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
                 )
             });
