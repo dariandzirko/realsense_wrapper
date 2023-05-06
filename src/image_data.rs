@@ -128,7 +128,7 @@ impl ImageData {
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
-                    image::Luma::<u8>([temp_data as u8]),
+                    image::Luma::<u8>([*data]),
                     // image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
                 )
             });
