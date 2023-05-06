@@ -123,7 +123,8 @@ impl ImageData {
                     ((*data as u16) << 8) | (self.frame_data.raw_data[[row, col + 1]] as u16);
 
                 temp_data = (temp_data / u16::MAX) * (u8::MAX as u16);
-
+                println!("temp_data : {}", temp_data);
+                println!("temp_data as u8 : {}", temp_data as u8);
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
