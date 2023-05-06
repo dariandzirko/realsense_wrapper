@@ -167,7 +167,8 @@ impl ImageData {
             Rs2Format::Y16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
             //This should be a Luma16 but idk how to do that with this crate
-            Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_depth_image())),
+            // Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_depth_image())),
+            Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
             _ => {
                 return None;
