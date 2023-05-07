@@ -90,6 +90,26 @@ impl ImageData {
         }
     }
 
+    //This needs to eventually return a 16bit image.
+    pub fn to_depth_image(&self) -> GrayImage {
+        let mut result =
+            GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
+        //Wtf is this use better raw pixel
+        self.frame_data
+            .raw_data
+            .indexed_iter()
+            .for_each(|((row, col), data)| {
+                result.put_pixel(
+                    col as u32,
+                    row as u32,
+                    image::Luma::<u8>([*data]),
+                    // image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
+                )
+            });
+
+        return result;
+    }
+
     pub fn to_luma_image(&self) -> GrayImage {
         let mut result =
             GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
@@ -140,6 +160,7 @@ impl ImageData {
 
             Rs2Format::Y16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
+            //Going to try to rewrite this
             Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
             _ => {
