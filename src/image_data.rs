@@ -101,7 +101,7 @@ impl ImageData {
             .step_by(2)
             .for_each(|((row, col), data)| {
                 result.put_pixel(
-                    col as u32,
+                    (col / 2) as u32,
                     row as u32,
                     image::Luma::<u8>([*data]),
                     // image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
