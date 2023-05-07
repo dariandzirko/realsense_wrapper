@@ -9,32 +9,9 @@ fn main() {
 }
 
 fn device_info_example() -> Option<bool> {
-    unsafe {
-        let mut error = std::ptr::null_mut::<realsense_wrapper::rs2_error>();
+    //Very simple example this will just create a realsense object and then connect to it
+    let realsense = RealsenseInstance::new();
 
-        let context = rs2_create_context(RS2_API_VERSION as i32, &mut error);
-        check_error(error);
-
-        let device_list = rs2_query_devices(context, &mut error);
-
-        let device_count = rs2_get_device_count(device_list, &mut error);
-        check_error(error);
-
-        if device_count == 0 {
-            println!("No devices connected");
-            return None;
-        } else {
-            println!("Device count is {}", device_count);
-        }
-
-        let device = rs2_create_device(device_list, 0, &mut error);
-        check_error(error);
-        print_device_info(device);
-
-        rs2_delete_device(device);
-        rs2_delete_device_list(device_list);
-        rs2_delete_context(context);
-
-        return Some(true);
-    }
+    //If this code crashes then you do not have a realsense plugged in or I royally borked something
+    return Some(true);
 }

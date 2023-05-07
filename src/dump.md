@@ -20,3 +20,9 @@
 # Okay so the current commit-2 is working pretty well, and it did not does crash but it just updates super slowly. Current idea is now make a big queue and hopefully update side by side so it's not super duper slow
 
 # Now I potentially fixed the framerate and resolution but the system in bevy will only run/work when I consistently give it inputs to the system, causing the update system to only trigger on events ie spacebar, mouse movement or clicks
+
+# Removing some winit line from the app. in the main file fixed the start to the fps problems. They were later completely corrected by running in release
+
+# I have not added format switching to the gui where you can hit the format button and the currecnt release instance will be dropped starting a new one with new configurations. Currently the formats are only RGB8, Y16, and Z16 so rgb, bw then depth
+
+# Now it is time to rewrite all the examples because none of them work. Then it is time to take the depth image and the camera intrinsics then make a point cloud

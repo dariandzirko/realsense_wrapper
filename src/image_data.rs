@@ -91,6 +91,8 @@ impl ImageData {
     }
 
     //This needs to eventually return a 16bit image.
+    //The Z16 format I think only uses the high byte? What I have now looks super similar
+    //to what I had with just using the high byte
     pub fn to_depth_image(&self) -> GrayImage {
         let mut result =
             GrayImage::new(self.frame_info.width as u32, self.frame_info.height as u32);
@@ -111,7 +113,6 @@ impl ImageData {
                     row as u32,
                     // image::Luma::<u8>([*data]),
                     image::Luma::<u8>([temp_data as u8]),
-                    // image::Luma::<u8>([self.frame_data.raw_data[[row, col + 1]]]),
                 )
             });
 
