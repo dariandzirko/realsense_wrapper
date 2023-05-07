@@ -100,11 +100,15 @@ impl ImageData {
             .indexed_iter()
             .step_by(2)
             .for_each(|((row, col), data)| {
+                let high_byte = (*data as u16) << 8;
+                let low_byte = self.frame_data.raw_data[[row, col + 1]] as u16;
+                let temp_data = (high_byte | low_byte) / u16::MAX * u8::MAX as u16;
+
                 result.put_pixel(
                     (col / 2) as u32,
                     row as u32,
-                    image::Luma::<u8>([*data]),
-                    // image::Luma::<u8>([(temp_data & 0x0ff) as u8]),
+                    // image::Luma::<u8>([*data]),
+                    image::Luma::<u8>([temp_data as u8]),
                 )
             });
 
