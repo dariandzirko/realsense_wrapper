@@ -4,6 +4,7 @@
 mod bindings;
 mod frame;
 mod image_data;
+mod point;
 mod realsense_init;
 mod types;
 mod utils;
@@ -11,6 +12,7 @@ mod utils;
 pub use bindings::*;
 pub use frame::*;
 pub use image_data::*;
+pub use point::*;
 pub use realsense_init::*;
 pub use types::*;
 pub use utils::*;
