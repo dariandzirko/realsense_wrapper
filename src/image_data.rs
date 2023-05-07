@@ -161,7 +161,7 @@ impl ImageData {
             Rs2Format::Y16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
 
             //Going to try to rewrite this
-            Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_luma_image())),
+            Rs2Format::Z16 => return Some(image::DynamicImage::ImageLuma8(self.to_depth_image())),
 
             _ => {
                 return None;
