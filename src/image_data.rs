@@ -98,6 +98,7 @@ impl ImageData {
         self.frame_data
             .raw_data
             .indexed_iter()
+            .step_by(2)
             .for_each(|((row, col), data)| {
                 result.put_pixel(
                     col as u32,
