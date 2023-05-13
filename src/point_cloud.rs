@@ -14,7 +14,7 @@ impl PointCloud {
     //Image data is a fine start for this function. For now should evolve to be able to differentiate between different types of image data?
     //Also this should be a "living" struct that will constantly be updated as images are streamed in
     pub fn new(depth_image: ImageData, intrinsics: rs2_intrinsics) -> PointCloud {
-        let temp_vector;
+        let mut temp_vector = vec![];
 
         //This is abusing the fact that I know the exact input to this, so not great
         depth_image
@@ -22,7 +22,20 @@ impl PointCloud {
             .raw_data
             .exact_chunks([2, 1])
             .into_iter()
-            .enumerate();
+            .enumerate()
+            .for_each(|(index, chunk)| {
+                let high_byte = (chunk.get(0) as u16) << 8;
+                let low_byte = chunk.get(1) as u16;
+                //What am i doing here, isn't this just a shift right 8 times?
+                // let temp_data = (high_byte | low_byte) / u16::MAX * u8::MAX as u16;
+                let temp_data = (high_byte | low_byte) >> 8;
+                temp_vector.push(Point::new(
+                    index % width,
+                    index % height,
+                    temp_data,
+                    intrinsics,
+                ))
+            });
 
         PointCloud {
             intrinsics,
