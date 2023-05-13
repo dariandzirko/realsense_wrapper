@@ -24,14 +24,14 @@ impl PointCloud {
             .into_iter()
             .enumerate()
             .for_each(|(index, chunk)| {
-                let high_byte = (chunk.get(0) as u16) << 8;
-                let low_byte = chunk.get(1) as u16;
+                let high_byte = (*chunk.get(0).unwrap() as u16) << 8;
+                let low_byte = *chunk.get(1).unwrap() as u16;
                 //What am i doing here, isn't this just a shift right 8 times?
                 // let temp_data = (high_byte | low_byte) / u16::MAX * u8::MAX as u16;
                 let temp_data = (high_byte | low_byte) >> 8;
                 temp_vector.push(Point::new(
-                    index % width,
-                    index % height,
+                    index % intrinsics.width as usize,
+                    index / intrinsics.height as usize,
                     temp_data,
                     intrinsics,
                 ))
