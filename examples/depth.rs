@@ -1,3 +1,5 @@
+use std::simd::intrinsics;
+
 pub use realsense_wrapper::*;
 
 fn main() {
@@ -20,11 +22,15 @@ fn black_white_example() -> Option<bool> {
 
     realsense.stream_frames(stream_index, width, height, fps, stream, format);
 
+    unsafe { rs2_get_video_stream_intrinsics(stream, intrinsics, error) }
+
     let mut buffer = FrameBuffer::new();
     buffer.populate_queue(&mut realsense);
 
     let image = buffer.get_curr_frame();
     if let Some(image_data) = image {
+        let point_cloud = PointCloud::new(&image_data, intrinstics);
+
         if let Some(saved_pic) = image_data.to_image() {
             saved_pic.save("depth_example.png");
         } else {

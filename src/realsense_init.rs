@@ -1,4 +1,7 @@
-use std::collections::{self, VecDeque};
+use std::{
+    collections::{self, VecDeque},
+    simd::intrinsics,
+};
 
 use crate::{
     bindings::*, check_error, format::Rs2Format, print_device_info, stream::Rs2StreamKind,
@@ -11,6 +14,7 @@ pub struct RealsenseInstance {
     pub pipeline: *mut rs2_pipeline,
     pub config: *mut rs2_config,
     pub pipeline_profile: *mut rs2_pipeline_profile,
+    pub intrinsics: rs2_intrinsics,
 }
 
 unsafe impl Sync for RealsenseInstance {}
@@ -96,6 +100,11 @@ impl RealsenseInstance {
 
             self.pipeline_profile =
                 rs2_pipeline_start_with_config(self.pipeline, self.config, &mut error);
+
+            let mut intrinsics = std::ptr::null_mut::<rs2_intrinsics>();
+
+            rs2_get_video_stream_intrinsics(self.pipeline_profile, intrinsics, &mut error);
+
             check_error(error);
             rs2_free_error(error);
         }
